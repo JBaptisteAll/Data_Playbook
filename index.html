@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guide Data Analyse — De A à Z</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0e0e12;--surface:#16161d;--card:#1c1c26;--border:#2a2a38;--accent1:#f0c040;--accent2:#5eead4;--accent3:#f87171;--accent4:#a78bfa;--text:#e8e8f0;--muted:#7070a0;--font-head:'Syne',sans-serif;--font-body:'Lora',serif;--font-mono:'IBM Plex Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);line-height:1.7;min-height:100vh}
+header{padding:60px 40px 40px;border-bottom:1px solid var(--border);position:relative;overflow:hidden}
+header::before{content:'';position:absolute;top:-60px;left:-60px;width:300px;height:300px;background:radial-gradient(circle,rgba(240,192,64,.12) 0%,transparent 70%);pointer-events:none}
+header::after{content:'';position:absolute;bottom:-40px;right:80px;width:200px;height:200px;background:radial-gradient(circle,rgba(94,234,212,.08) 0%,transparent 70%);pointer-events:none}
+.header-tag{font-family:var(--font-mono);font-size:11px;letter-spacing:.15em;color:var(--accent1);text-transform:uppercase;margin-bottom:16px}
+h1{font-family:var(--font-head);font-size:clamp(2rem,5vw,3.5rem);font-weight:800;line-height:1.1;margin-bottom:12px}
+h1 span{color:var(--accent1)}
+.header-sub{color:var(--muted);font-size:1rem;max-width:600px}
+.layout{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 200px)}
+nav{border-right:1px solid var(--border);padding:32px 0;position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--surface)}
+.nav-section{padding:0 20px;margin-bottom:8px}
+.nav-label{font-family:var(--font-mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;padding:0 12px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;font-family:var(--font-head);font-size:13px;font-weight:600;color:var(--muted);transition:all .2s;border:none;background:none;width:100%;text-align:left}
+.nav-item:hover{background:var(--card);color:var(--text)}
+.nav-item.active{background:rgba(240,192,64,.1);color:var(--accent1)}
+.nav-item .dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+.nav-divider{height:1px;background:var(--border);margin:16px 20px}
+main{padding:40px;overflow-y:auto}
+.section{display:none;animation:fadeIn .3s ease}
+.section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.section-header{display:flex;align-items:flex-start;gap:20px;margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid var(--border)}
+.section-icon{font-size:2rem;flex-shrink:0;margin-top:4px}
+.section-title{font-family:var(--font-head);font-size:1.8rem;font-weight:800}
+.section-desc{color:var(--muted);font-size:.95rem;margin-top:4px}
+h2{font-family:var(--font-head);font-size:1.15rem;font-weight:700;margin:28px 0 14px}
+p{margin-bottom:12px;font-size:.95rem}
+.cards{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));margin:20px 0}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;transition:border-color .2s}
+.card:hover{border-color:var(--accent1)}
+.card-icon{font-size:1.5rem;margin-bottom:10px}
+.card-title{font-family:var(--font-head);font-weight:700;font-size:.95rem;margin-bottom:6px}
+.card-text{color:var(--muted);font-size:.85rem;line-height:1.6}
+.steps{display:flex;flex-direction:column;gap:0;margin:20px 0}
+.step{display:grid;grid-template-columns:48px 1fr;gap:16px;position:relative}
+.step:not(:last-child)::before{content:'';position:absolute;left:23px;top:48px;width:2px;height:calc(100% - 16px);background:var(--border)}
+.step-num{width:48px;height:48px;border-radius:50%;background:var(--card);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-weight:500;font-size:14px;color:var(--accent1);flex-shrink:0;z-index:1}
+.step-body{padding:10px 0 28px}
+.step-title{font-family:var(--font-head);font-weight:700;margin-bottom:6px}
+.step-text{color:var(--muted);font-size:.88rem;line-height:1.65}
+.code-block{background:#0a0a0f;border:1px solid var(--border);border-left:3px solid var(--accent2);border-radius:8px;padding:16px 20px;font-family:var(--font-mono);font-size:.82rem;line-height:1.7;color:#c8c8e8;margin:12px 0;overflow-x:auto;position:relative}
+.code-block[data-level]::before{content:attr(data-level);position:absolute;top:8px;right:12px;font-size:10px;letter-spacing:.1em;padding:2px 8px;border-radius:20px;font-weight:600}
+.code-block[data-level="DEBUTANT"]::before{background:rgba(134,239,172,.15);color:#86efac;border:1px solid rgba(134,239,172,.3)}
+.code-block[data-level="INTERMEDIAIRE"]::before{background:rgba(240,192,64,.12);color:var(--accent1);border:1px solid rgba(240,192,64,.3)}
+.code-block[data-level="AVANCE"]::before{background:rgba(167,139,250,.12);color:var(--accent4);border:1px solid rgba(167,139,250,.3)}
+.code-block[data-level="EXPERT"]::before{background:rgba(248,113,113,.12);color:var(--accent3);border:1px solid rgba(248,113,113,.3)}
+.kw{color:#a78bfa}.fn{color:#5eead4}.str{color:#86efac}.cm{color:#4a4a6a;font-style:italic}.num{color:#f0c040}
+.cn{color:#f0c040}.cc{color:#5eead4}.cd{color:#f87171}.ci{color:#a78bfa}
+.sql-concept{display:inline-block;font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent2);border-bottom:1px solid var(--accent2);margin:24px 0 6px;padding-bottom:3px}
+.col-legend{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0 24px;padding:14px 18px;background:var(--card);border-radius:10px;border:1px solid var(--border)}
+.col-legend-item{display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:12px}
+.col-legend-dot{width:10px;height:10px;border-radius:50%}
+.checklist{list-style:none;display:flex;flex-direction:column;gap:8px;margin:16px 0}
+.checklist li{display:flex;align-items:flex-start;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-size:.9rem;cursor:pointer;transition:all .2s;user-select:none}
+.checklist li:hover{border-color:var(--accent1)}
+.checklist li.checked{border-color:var(--accent2);background:rgba(94,234,212,.05)}
+.checklist li .check{width:20px;height:20px;border-radius:4px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;transition:all .2s;margin-top:1px}
+.checklist li.checked .check{background:var(--accent2);border-color:var(--accent2);color:#000}
+.checklist li .check-label{flex:1}
+.checklist li .check-sub{display:block;color:var(--muted);font-size:.8rem;margin-top:2px}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.tag{font-family:var(--font-mono);font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid}
+.tag-sql{color:#5eead4;border-color:rgba(94,234,212,.3);background:rgba(94,234,212,.05)}
+.tag-excel{color:#86efac;border-color:rgba(134,239,172,.3);background:rgba(134,239,172,.05)}
+.tag-pbi{color:#f0c040;border-color:rgba(240,192,64,.3);background:rgba(240,192,64,.05)}
+.tag-stat{color:#f87171;border-color:rgba(248,113,113,.3);background:rgba(248,113,113,.05)}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:.88rem}
+th{background:var(--card);font-family:var(--font-head);font-weight:700;text-align:left;padding:10px 14px;border-bottom:2px solid var(--border);color:var(--accent1);font-size:.8rem;letter-spacing:.05em}
+td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
+tr:hover td{background:rgba(255,255,255,.02);color:var(--text)}
+.highlight{background:rgba(240,192,64,.07);border:1px solid rgba(240,192,64,.2);border-radius:10px;padding:16px 20px;margin:16px 0;font-size:.9rem}
+.highlight strong{color:var(--accent1);font-family:var(--font-head)}
+.tip{background:rgba(94,234,212,.06);border:1px solid rgba(94,234,212,.2);border-radius:10px;padding:14px 18px;margin:12px 0;font-size:.88rem;color:var(--muted)}
+.tip strong{color:var(--accent2)}
+.formula{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 18px;margin:10px 0;font-family:var(--font-mono);font-size:.85rem}
+.formula-name{color:var(--accent4);font-size:.75rem;margin-bottom:4px}
+.formula-eq{color:var(--text)}
+.formula-note{color:var(--muted);font-size:.78rem;margin-top:4px}
+.progress-bar{background:var(--border);border-radius:4px;height:6px;margin:6px 0 12px;overflow:hidden}
+.progress-fill{height:100%;border-radius:4px;background:var(--accent1);transition:width .5s ease}
+.level-bar{display:flex;gap:6px;align-items:center;margin:32px 0 16px;padding:12px 16px;background:var(--card);border-radius:8px;border:1px solid var(--border)}
+.level-bar-label{font-family:var(--font-mono);font-size:10px;color:var(--muted);margin-right:8px;letter-spacing:.1em}
+.level-pip{flex:1;height:4px;border-radius:2px;background:var(--border)}
+.level-pip.g{background:#86efac}.level-pip.y{background:var(--accent1)}.level-pip.p{background:var(--accent4)}.level-pip.r{background:var(--accent3)}
+.level-bar-text{font-family:var(--font-head);font-size:12px;font-weight:700;margin-left:8px}
+@media(max-width:768px){.layout{grid-template-columns:1fr}nav{height:auto;position:static;display:flex;flex-wrap:wrap;gap:4px;padding:16px}.nav-item{width:auto;padding:6px 12px;font-size:12px}.nav-label,.nav-divider,.nav-section{display:none}main{padding:24px 16px}header{padding:32px 20px 24px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-tag">// Guide complet &middot; Data Analyse</div>
+  <h1>La Data Analyse<br><span>de A &agrave; Z</span></h1>
+  <p class="header-sub">SQL &middot; Excel &middot; Visualisation &middot; KPIs &middot; Statistiques &middot; Insights &mdash; tout ce qu&apos;il faut savoir pour structurer une vraie analyse.</p>
+</header>
+<div class="layout">
+<nav>
+  <div class="nav-label">Fondamentaux</div>
+  <div class="nav-section">
+    <button class="nav-item active" onclick="show('mindset',this)"><span class="dot"></span>Le bon &eacute;tat d&apos;esprit</button>
+    <button class="nav-item" onclick="show('process',this)"><span class="dot"></span>La m&eacute;thode A&rarr;Z</button>
+  </div>
+  <div class="nav-divider"></div>
+  <div class="nav-label">Pr&eacute;paration</div>
+  <div class="nav-section">
+    <button class="nav-item" onclick="show('eda',this)"><span class="dot"></span>Exploration (EDA)</button>
+    <button class="nav-item" onclick="show('nettoyage',this)"><span class="dot"></span>Nettoyage des donn&eacute;es</button>
+    <button class="nav-item" onclick="show('sql',this)"><span class="dot"></span>SQL essentiel</button>
+  </div>
+  <div class="nav-divider"></div>
+  <div class="nav-label">Analyse</div>
+  <div class="nav-section">
+    <button class="nav-item" onclick="show('kpis',this)"><span class="dot"></span>KPIs &amp; m&eacute;triques</button>
+    <button class="nav-item" onclick="show('stats',this)"><span class="dot"></span>Statistiques cl&eacute;s</button>
+    <button class="nav-item" onclick="show('insights',this)"><span class="dot"></span>Trouver des insights</button>
+    <button class="nav-item" onclick="show('communication',this)"><span class="dot"></span>Communiquer ses r&eacute;sultats</button>
+  </div>
+  <div class="nav-divider"></div>
+  <div class="nav-label">Outils</div>
+  <div class="nav-section">
+    <button class="nav-item" onclick="show('sqlref',this)"><span class="dot"></span>SQL &mdash; R&eacute;f&eacute;rentiel complet</button>
+    <button class="nav-item" onclick="show('excel',this)"><span class="dot"></span>Excel / formules</button>
+    <button class="nav-item" onclick="show('visualisation',this)"><span class="dot"></span>Visualisation</button>
+  </div>
+  <div class="nav-divider"></div>
+  <div class="nav-label">Pratique</div>
+  <div class="nav-section">
+    <button class="nav-item" onclick="show('checklist',this)"><span class="dot"></span>Checklist interactive</button>
+  </div>
+</nav>
+<main>
+
+<section id="mindset" class="section active">
+  <div class="section-header"><div class="section-icon">&#129504;</div><div><div class="section-title">Le bon &eacute;tat d&apos;esprit</div><div class="section-desc">Pourquoi vous avez la page blanche &mdash; et comment la combattre</div></div></div>
+  <div class="highlight"><strong>Le vrai probl&egrave;me :</strong> Le bootcamp vous a appris &agrave; utiliser des outils. Mais analyser des donn&eacute;es, c&apos;est d&apos;abord <em>poser les bonnes questions</em> &mdash; pas lancer des requ&ecirc;tes au hasard.</div>
+  <h2>La r&egrave;gle fondamentale</h2>
+  <p>Une analyse commence toujours par une <strong>question m&eacute;tier</strong>, pas par une table SQL.</p>
+  <div class="cards">
+    <div class="card"><div class="card-icon">&#127919;</div><div class="card-title">Quel est l&apos;objectif ?</div><div class="card-text">Comprendre les ventes ? R&eacute;duire le churn ? L&apos;objectif guide tout le reste.</div></div>
+    <div class="card"><div class="card-icon">&#128100;</div><div class="card-title">Pour qui ?</div><div class="card-text">Un directeur veut 3 chiffres. Un ops manager veut du d&eacute;tail.</div></div>
+    <div class="card"><div class="card-icon">&#9203;</div><div class="card-title">Sur quelle p&eacute;riode ?</div><div class="card-text">Hebdo, mensuel, annuel ? Comparer &agrave; la m&ecirc;me p&eacute;riode l&apos;an dernier ?</div></div>
+    <div class="card"><div class="card-icon">&#128208;</div><div class="card-title">Quelle granularit&eacute; ?</div><div class="card-text">Par produit ? Par r&eacute;gion ? Par client ?</div></div>
+  </div>
+  <h2>Les 3 types d&apos;analyses</h2>
+  <table>
+    <tr><th>Type</th><th>Question pos&eacute;e</th><th>Exemple</th></tr>
+    <tr><td><strong style="color:var(--accent2)">Descriptive</strong></td><td>Que s&apos;est-il pass&eacute; ?</td><td>CA du mois dernier par r&eacute;gion</td></tr>
+    <tr><td><strong style="color:var(--accent4)">Diagnostique</strong></td><td>Pourquoi c&apos;est arriv&eacute; ?</td><td>Pourquoi les ventes baissent en &eacute;t&eacute; ?</td></tr>
+    <tr><td><strong style="color:var(--accent1)">Pr&eacute;dictive</strong></td><td>Que va-t-il se passer ?</td><td>Tendance des r&eacute;servations pour Q4</td></tr>
+  </table>
+  <div class="tip"><strong>&#128161; En tant que junior :</strong> concentrez-vous sur le <em>descriptif</em> et le <em>diagnostique</em>. Ce sont 90% du travail r&eacute;el.</div>
+  <h2>5 questions starters universelles</h2>
+  <ol style="padding-left:20px;color:var(--muted);font-size:.9rem;line-height:2.2;">
+    <li>Combien de lignes / colonnes ?</li>
+    <li>Quelle p&eacute;riode couvre le dataset ?</li>
+    <li>Y a-t-il des valeurs nulles ou aberrantes ?</li>
+    <li>Quelles sont les m&eacute;triques cl&eacute;s disponibles ?</li>
+    <li>Y a-t-il des tendances ou anomalies visibles ?</li>
+  </ol>
+</section>
+
+<section id="process" class="section">
+  <div class="section-header"><div class="section-icon">&#128506;</div><div><div class="section-title">La m&eacute;thode A &rarr; Z</div><div class="section-desc">Les 6 &eacute;tapes d&apos;une analyse structur&eacute;e</div></div></div>
+  <div class="steps">
+    <div class="step"><div class="step-num">01</div><div class="step-body"><div class="step-title">Comprendre le contexte &amp; d&eacute;finir les questions</div><div class="step-text">Quel probl&egrave;me r&eacute;sout-on ? R&eacute;digez 3&ndash;5 questions cl&eacute;s.<br><br><div class="tags"><span class="tag-sql">SQL</span><span class="tag-excel">Excel</span></div></div></div></div>
+    <div class="step"><div class="step-num">02</div><div class="step-body"><div class="step-title">Explorer les donn&eacute;es (EDA)</div><div class="step-text">Tables, colonnes, types, cl&eacute;s de jointure.<br><br><div class="tags"><span class="tag-sql">SQL</span><span class="tag-excel">Excel</span></div></div></div></div>
+    <div class="step"><div class="step-num">03</div><div class="step-body"><div class="step-title">Nettoyer &amp; pr&eacute;parer</div><div class="step-text">Nulls, doublons, formats incoh&eacute;rents.<br><br><div class="tags"><span class="tag-sql">SQL</span><span class="tag-excel">Excel</span></div></div></div></div>
+    <div class="step"><div class="step-num">04</div><div class="step-body"><div class="step-title">Calculer les KPIs &amp; agr&eacute;gations</div><div class="step-text">Sommes, moyennes, ratios. Segmentez par dimensions cl&eacute;s.<br><br><div class="tags"><span class="tag-sql">SQL</span><span class="tag-pbi">Power BI</span></div></div></div></div>
+    <div class="step"><div class="step-num">05</div><div class="step-body"><div class="step-title">Analyser &amp; trouver des insights</div><div class="step-text">Tendances, anomalies, corr&eacute;lations. &laquo;&thinsp;Et alors ?&thinsp;&raquo;<br><br><div class="tags"><span class="tag-pbi">Power BI</span><span class="tag-stat">Stats</span></div></div></div></div>
+    <div class="step"><div class="step-num">06</div><div class="step-body"><div class="step-title">Visualiser &amp; communiquer</div><div class="step-text">Bons graphiques, conclusions claires en 30 secondes.<br><br><div class="tags"><span class="tag-pbi">Power BI</span><span class="tag-excel">Excel</span></div></div></div></div>
+  </div>
+</section>
+
+<section id="eda" class="section">
+  <div class="section-header"><div class="section-icon">&#128269;</div><div><div class="section-title">Exploration initiale (EDA)</div><div class="section-desc">5 requ&ecirc;tes pour comprendre un dataset inconnu en 5 minutes</div></div></div>
+  <div class="highlight"><strong>L&apos;EDA, c&apos;est votre premi&egrave;re conversation avec les donn&eacute;es.</strong> L&apos;objectif n&apos;est pas encore de nettoyer ni d&apos;analyser &mdash; c&apos;est d&apos;observer. Comprendre ce que vous avez avant de d&eacute;cider ce que vous pouvez en faire.</div>
+
+  <div class="sql-concept">1 &mdash; Vue g&eacute;n&eacute;rale : volume, p&eacute;riode, unicit&eacute;</div>
+  <div class="code-block" data-level="DEBUTANT">
+<span class="cm">-- Nombre de lignes total</span><br>
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">AS</span> nb_lignes <span class="kw">FROM</span> table_1;<br><br>
+<span class="cm">-- Période couverte par les données</span><br>
+<span class="kw">SELECT</span><br>
+  <span class="fn">MIN</span>(<span class="cd">col_date_1</span>)                                        <span class="kw">AS</span> date_debut,<br>
+  <span class="fn">MAX</span>(<span class="cd">col_date_1</span>)                                        <span class="kw">AS</span> date_fin,<br>
+  <span class="fn">DATEDIFF</span>(<span class="kw">day</span>, <span class="fn">MIN</span>(<span class="cd">col_date_1</span>), <span class="fn">MAX</span>(<span class="cd">col_date_1</span>))   <span class="kw">AS</span> nb_jours<br>
+<span class="kw">FROM</span> table_1;<br><br>
+<span class="cm">-- Y a-t-il des doublons sur la clé principale ?</span><br>
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">AS</span> nb_lignes, <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> <span class="ci">id</span>) <span class="kw">AS</span> nb_ids_uniques <span class="kw">FROM</span> table_1;<br>
+<span class="cm">-- Si nb_lignes &gt; nb_ids_uniques → doublons sur id</span>
+  </div>
+
+  <div class="sql-concept">2 &mdash; Distribution des cat&eacute;gories</div>
+  <div class="code-block" data-level="DEBUTANT">
+<span class="cm">-- Valeurs uniques et leur fréquence avec % du total</span><br>
+<span class="kw">SELECT</span><br>
+  <span class="cc">col_cat_1</span>,<br>
+  <span class="fn">COUNT</span>(*)                                              <span class="kw">AS</span> nb,<br>
+  <span class="fn">ROUND</span>(<span class="fn">COUNT</span>(*) * <span class="num">100.0</span> / <span class="fn">SUM</span>(<span class="fn">COUNT</span>(*)) <span class="kw">OVER</span>(), <span class="num">1</span>) <span class="kw">AS</span> pct<br>
+<span class="kw">FROM</span>     table_1<br>
+<span class="kw">GROUP BY</span> <span class="cc">col_cat_1</span><br>
+<span class="kw">ORDER BY</span> nb <span class="kw">DESC</span>;
+  </div>
+  <div class="tip"><strong>&#128161; R&eacute;p&eacute;ter pour chaque colonne cat&eacute;gorielle.</strong> Cherchez : les valeurs inattendues, les typos (&laquo;france&raquo; vs &laquo;France&raquo;), les cat&eacute;gories &agrave; 0% ou &agrave; 100%.</div>
+
+  <div class="sql-concept">3 &mdash; Profil des colonnes num&eacute;riques</div>
+  <div class="code-block" data-level="INTERMEDIAIRE">
+<span class="kw">SELECT</span><br>
+  <span class="fn">COUNT</span>(<span class="cn">col_num_1</span>)                                            <span class="kw">AS</span> nb_valeurs,<br>
+  <span class="fn">COUNT</span>(*) - <span class="fn">COUNT</span>(<span class="cn">col_num_1</span>)                               <span class="kw">AS</span> nb_nulls,<br>
+  <span class="fn">MIN</span>(<span class="cn">col_num_1</span>)                                             <span class="kw">AS</span> minimum,<br>
+  <span class="fn">MAX</span>(<span class="cn">col_num_1</span>)                                             <span class="kw">AS</span> maximum,<br>
+  <span class="fn">ROUND</span>(<span class="fn">AVG</span>(<span class="cn">col_num_1</span>), <span class="num">2</span>)                                <span class="kw">AS</span> moyenne,<br>
+  <span class="fn">PERCENTILE_CONT</span>(<span class="num">0.5</span>) <span class="kw">WITHIN GROUP</span> (<span class="kw">ORDER BY</span> <span class="cn">col_num_1</span>) <span class="kw">AS</span> mediane,<br>
+  <span class="fn">ROUND</span>(<span class="fn">STDEV</span>(<span class="cn">col_num_1</span>), <span class="num">2</span>)                              <span class="kw">AS</span> ecart_type<br>
+<span class="kw">FROM</span> table_1;
+  </div>
+  <div class="tip"><strong>&#128161; Si moyenne &gt;&gt; m&eacute;diane</strong> &rarr; distribution asym&eacute;trique, probablement des outliers. Comparez toujours les deux avant de choisir votre indicateur.</div>
+
+  <div class="sql-concept">4 &mdash; Tendance temporelle rapide</div>
+  <div class="code-block" data-level="INTERMEDIAIRE">
+<span class="cm">-- Volume et montant par mois, trié chronologiquement</span><br>
+<span class="kw">SELECT</span><br>
+  <span class="fn">FORMAT</span>(<span class="cd">col_date_1</span>, <span class="str">'yyyy-MM'</span>) <span class="kw">AS</span> mois,<br>
+  <span class="fn">COUNT</span>(*)                      <span class="kw">AS</span> nb_lignes,<br>
+  <span class="fn">SUM</span>(<span class="cn">col_num_1</span>)              <span class="kw">AS</span> total<br>
+<span class="kw">FROM</span>     table_1<br>
+<span class="kw">GROUP BY</span> <span class="fn">FORMAT</span>(<span class="cd">col_date_1</span>, <span class="str">'yyyy-MM'</span>)<br>
+<span class="kw">ORDER BY</span> mois;
+  </div>
+  <div class="tip"><strong>&#128161; Cherchez :</strong> les mois &agrave; 0 (donn&eacute;es manquantes ?), les pics inhabituels, les ruptures de tendance.</div>
+
+  <div class="sql-concept">5 &mdash; Croisement de deux dimensions</div>
+  <div class="code-block" data-level="INTERMEDIAIRE">
+<span class="cm">-- Tableau croisé : catégorie 1 × catégorie 2</span><br>
+<span class="kw">SELECT</span><br>
+  <span class="cc">col_cat_1</span>,<br>
+  <span class="cc">col_cat_2</span>,<br>
+  <span class="fn">COUNT</span>(*)       <span class="kw">AS</span> nb,<br>
+  <span class="fn">SUM</span>(<span class="cn">col_num_1</span>) <span class="kw">AS</span> total<br>
+<span class="kw">FROM</span>     table_1<br>
+<span class="kw">GROUP BY</span> <span class="cc">col_cat_1</span>, <span class="cc">col_cat_2</span><br>
+<span class="kw">ORDER BY</span> <span class="cc">col_cat_1</span>, total <span class="kw">DESC</span>;
+  </div>
+
+  <h2>Ce que vous cherchez pendant l&apos;EDA</h2>
+  <table>
+    <tr><th>Question</th><th>Requ&ecirc;te cl&eacute;</th><th>Signal d&apos;alerte</th></tr>
+    <tr><td>Volume coh&eacute;rent ?</td><td><code>COUNT(*)</code></td><td>0 lignes, ou beaucoup moins qu&apos;attendu</td></tr>
+    <tr><td>P&eacute;riode attendue ?</td><td><code>MIN / MAX date</code></td><td>Dates futures ou trop anciennes</td></tr>
+    <tr><td>Cl&eacute; unique ?</td><td><code>COUNT(*) vs COUNT(DISTINCT id)</code></td><td>nb_lignes &gt; nb_ids → doublons</td></tr>
+    <tr><td>NULLs importants ?</td><td><code>COUNT(*) - COUNT(col)</code></td><td>&gt; 10% sur une colonne cl&eacute;</td></tr>
+    <tr><td>Valeurs aberrantes ?</td><td><code>MIN / MAX / AVG</code></td><td>Min n&eacute;gatif ou Max irr&eacute;aliste</td></tr>
+    <tr><td>Cat&eacute;gories coh&eacute;rentes ?</td><td><code>GROUP BY + COUNT</code></td><td>Typos, valeurs inattendues</td></tr>
+    <tr><td>Tendance normale ?</td><td><code>GROUP BY mois</code></td><td>Mois vides ou pics isol&eacute;s</td></tr>
+  </table>
+</section>
+
+<section id="nettoyage" class="section">
+  <div class="section-header"><div class="section-icon">&#129529;</div><div><div class="section-title">Nettoyage des donn&eacute;es</div><div class="section-desc">La donn&eacute;e propre est la base de toute analyse fiable</div></div></div>
+  <div class="highlight"><strong>R&egrave;gle des 80/20 :</strong> 80% du temps d&apos;un vrai projet est pass&eacute; &agrave; nettoyer et pr&eacute;parer les donn&eacute;es.</div>
+  <div class="cards">
+    <div class="card"><div class="card-icon">&#128371;</div><div class="card-title">Valeurs nulles</div><div class="card-text">Supprimer ? Remplacer par 0 / moyenne / &laquo;Inconnu&raquo; ? Selon le contexte m&eacute;tier.</div></div>
+    <div class="card"><div class="card-icon">&#128111;</div><div class="card-title">Doublons</div><div class="card-text">Des lignes dupliqu&eacute;es faussent toutes vos sommes.</div></div>
+    <div class="card"><div class="card-icon">&#128197;</div><div class="card-title">Formats incoh&eacute;rents</div><div class="card-text">&laquo;2024-01-05&raquo; vs &laquo;05/01/2024&raquo; &mdash; m&ecirc;me date, 2 formats. Tout doit &ecirc;tre harmonis&eacute;.</div></div>
+    <div class="card"><div class="card-icon">&#128202;</div><div class="card-title">Valeurs aberrantes</div><div class="card-text">Prix &agrave; -500&euro; ou 999999&euro; ? V&eacute;rifier avant calcul.</div></div>
+    <div class="card"><div class="card-icon">&#128292;</div><div class="card-title">Casse &amp; espaces</div><div class="card-text">&laquo;Paris&raquo; et &laquo; paris&raquo; sont 2 valeurs diff&eacute;rentes. TRIM et UPPER sont vos amis.</div></div>
+    <div class="card"><div class="card-icon">&#128290;</div><div class="card-title">Mauvais type</div><div class="card-text">Un montant en texte = calculs impossibles. Castez vos colonnes.</div></div>
+  </div>
+  <h2>En SQL</h2>
+  <div class="code-block" data-level="DEBUTANT">
+<span class="cm">-- D&eacute;tecter les NULLs</span><br>
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">FROM</span> table_1 <span class="kw">WHERE</span> <span class="cc">col_cat_1</span> <span class="kw">IS NULL</span>;<br><br>
+<span class="cm">-- D&eacute;tecter les doublons</span><br>
+<span class="kw">SELECT</span> <span class="cc">col_cat_1</span>, <span class="fn">COUNT</span>(*) <span class="kw">FROM</span> table_1 <span class="kw">GROUP BY</span> <span class="cc">col_cat_1</span> <span class="kw">HAVING</span> <span class="fn">COUNT</span>(*) &gt; <span class="num">1</span>;<br><br>
+<span class="cm">-- Remplacer NULL par 0</span><br>
+<span class="kw">SELECT</span> <span class="fn">ISNULL</span>(<span class="cn">col_num_1</span>, <span class="num">0</span>) <span class="kw">FROM</span> table_1;<br><br>
+<span class="cm">-- Nettoyer casse + espaces</span><br>
+<span class="kw">SELECT</span> <span class="fn">UPPER</span>(<span class="fn">TRIM</span>(<span class="cc">col_cat_1</span>)) <span class="kw">FROM</span> table_1;
+  </div>
+
+  <h2>Aller plus loin</h2>
+
+  <div class="sql-concept">Audit NULLs &mdash; toutes les colonnes en une requête</div>
+  <div class="code-block" data-level="INTERMEDIAIRE">
+<span class="cm">-- Vue d'ensemble des valeurs manquantes, colonne par colonne</span><br>
+<span class="kw">SELECT</span><br>
+  <span class="fn">COUNT</span>(*)                                                           <span class="kw">AS</span> total_lignes,<br>
+  <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> <span class="cc">col_cat_1</span>  <span class="kw">IS NULL THEN</span> <span class="num">1</span> <span class="kw">ELSE</span> <span class="num">0</span> <span class="kw">END</span>) <span class="kw">AS</span> nulls_col_cat_1,<br>
+  <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> <span class="cn">col_num_1</span>  <span class="kw">IS NULL THEN</span> <span class="num">1</span> <span class="kw">ELSE</span> <span class="num">0</span> <span class="kw">END</span>) <span class="kw">AS</span> nulls_col_num_1,<br>
+  <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> <span class="cd">col_date_1</span> <span class="kw">IS NULL THEN</span> <span class="num">1</span> <span class="kw">ELSE</span> <span class="num">0</span> <span class="kw">END</span>) <span class="kw">AS</span> nulls_col_date_1<br>
+<span class="kw">FROM</span> table_1;
+  </div>
+
+  <div class="sql-concept">Remplacer les NULLs &mdash; COALESCE (fonctionne sur tous les SGBD)</div>
+  <div class="code-block" data-level="DEBUTANT">
+<span class="cm">-- Remplacer NULL par 0 — universel (MySQL, PostgreSQL, SQL Server...)</span><br>
+<span class="kw">SELECT</span> <span class="fn">COALESCE</span>(<span class="cn">col_num_1</span>, <span class="num">0</span>) <span class="kw">AS</span> montant <span class="kw">FROM</span> table_1;<br><br>
+<span class="cm">-- Fallback sur une 2e colonne, puis 'Inconnu' si les deux sont NULL</span><br>
+<span class="kw">SELECT</span> <span class="fn">COALESCE</span>(<span class="cc">col_cat_1</span>, <span class="cc">col_cat_2</span>, <span class="str">'Inconnu'</span>) <span class="kw">AS</span> categorie <span class="kw">FROM</span> table_1;<br><br>
+<span class="cm">-- Remplacer NULL par la moyenne de la colonne (window function)</span><br>
+<span class="kw">SELECT</span> <span class="fn">COALESCE</span>(<span class="cn">col_num_1</span>, <span class="fn">AVG</span>(<span class="cn">col_num_1</span>) <span class="kw">OVER</span>()) <span class="kw">AS</span> montant_corrige <span class="kw">FROM</span> table_1;
+  </div>
+  <div class="tip"><strong>ISNULL vs COALESCE :</strong> <code>ISNULL(col, val)</code> est spécifique à SQL Server. <code>COALESCE(col, val)</code> fonctionne partout &mdash; préférez-le.</div>
+
+  <div class="sql-concept">Doublons &mdash; sur plusieurs colonnes et déduplication</div>
+  <div class="code-block" data-level="INTERMEDIAIRE">
+<span class="cm">-- Identifier les doublons sur une combinaison de colonnes clés</span><br>
+<span class="kw">SELECT</span>   <span class="cc">col_cat_1</span>, <span class="cc">col_cat_2</span>, <span class="cd">col_date_1</span>, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> nb<br>
+<span class="kw">FROM</span>     table_1<br>
+<span class="kw">GROUP BY</span> <span class="cc">col_cat_1</span>, <span class="cc">col_cat_2</span>, <span class="cd">col_date_1</span><br>
+<span class="kw">HAVING</span>   <span class="fn">COUNT</span>(*) &gt; <span class="num">1</span>;<br><br>
+<span class="cm">-- Garder 1 ligne par doublon (conserver la plus récente)</span><br>
+<span class="kw">WITH</span> dedup <span class="kw">AS</span> (<br>
+  <span class="kw">SELECT</span> *,<br>
+    <span class="fn">ROW_NUMBER</span>() <span class="kw">OVER</span> (<br>
+      <span class="kw">PARTITION BY</span> <span class="cc">col_cat_1</span>, <span class="cc">col_cat_2</span><br>
+      <span class="kw">ORDER BY</span>     <span class="cd">col_date_1</span> <span class="kw">DESC</span><br>
+    ) <span class="kw">AS</span> rn<br>
+  <span class="kw">FROM</span> table_1<br>
+)<br>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> dedup <span class="kw">WHERE</span> rn = <span class="num">1</span>;
+  </div>
+
+  <div class="sql-concept">Profil rapide &mdash; vue d'ensemble d'une colonne numérique</div>
+  <div class="code-block" data-level="INTERMEDIAIRE">
+<span class="kw">SELECT</span><br>
+  <span class="fn">COUNT</span>(*)                        <span class="kw">AS</span> total_lignes,<br>
+  <span class="fn">COUNT</span>(<span class="cn">col_num_1</span>)              <span class="kw">AS</span> valeurs_renseignees,<br>
+  <span class="fn">COUNT</span>(*) - <span class="fn">COUNT</span>(<span class="cn">col_num_1</span>)  <span class="kw">AS</span> nb_nulls,<br>
+  <span class="fn">MIN</span>(<span class="cn">col_num_1</span>)                <span class="kw">AS</span> minimum,<br>
+  <span class="fn">MAX</span>(<span class="cn">col_num_1</span>)                <span class="kw">AS</span> maximum,<br>
+  <span class="fn">ROUND</span>(<span class="fn">AVG</span>(<span class="cn">col_num_1</span>), <span class="num">2</span>)   <span class="kw">AS</span> moyenne,<br>
+  <span class="fn">ROUND</span>(<span class="fn">STDEV</span>(<span class="cn">col_num_1</span>), <span class="num">2</span>) <span class="kw">AS</span> ecart_type<br>
+<span class="kw">FROM</span> table_1;
+  </div>
+
+  <div class="sql-concept">Valeurs aberrantes (outliers) &mdash; par percentiles</div>
+  <div class="code-block" data-level="AVANCE">
+<span class="cm">-- Méthode 1 : seuil fixe (rapide si on connaît le domaine métier)</span><br>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> table_1<br>
+<span class="kw">WHERE</span>  <span class="cn">col_num_1</span> &lt; <span class="num">0</span> <span class="kw">OR</span> <span class="cn">col_num_1</span> &gt; <span class="num">10000</span>;<br><br>
+<span class="cm">-- Méthode 2 : valeurs hors du 1er et 99e percentile</span><br>
+<span class="kw">WITH</span> bornes <span class="kw">AS</span> (<br>
+  <span class="kw">SELECT</span><br>
+    <span class="fn">PERCENTILE_CONT</span>(<span class="num">0.01</span>) <span class="kw">WITHIN GROUP</span> (<span class="kw">ORDER BY</span> <span class="cn">col_num_1</span>) <span class="kw">AS</span> p01,<br>
+    <span class="fn">PERCENTILE_CONT</span>(<span class="num">0.99</span>) <span class="kw">WITHIN GROUP</span> (<span class="kw">ORDER BY</span> <span class="cn">col_num_1</span>) <span class="kw">AS</span> p99<br>
+  <span class="kw">FROM</span> table_1<br>
+)<br>
+<span class="kw">SELECT</span>  t.*<br>
+<span class="kw">FROM</span>    table_1 t, bornes b<br>
+<span class="kw">WHERE</span>   t.<span class="cn">col_num_1</span> &lt; b.p01 <span class="kw">OR</span> t.<span class="cn">col_num_1</span> &gt; b.p99;
+  </div>
+
+  <div class="sql-concept">Intégrité référentielle &mdash; détecter les lignes orphelines</div>
+  <div class="code-block" data-level="INTERMEDIAIRE">
+<span class="cm">-- Lignes de table_2 sans correspondance dans table_1 (clé étrangère invalide)</span><br>
+<span class="kw">SELECT</span>    t2.*<br>
+<span class="kw">FROM</span>      table_2 t2<br>
+<span class="kw">LEFT JOIN</span> table_1 t1 <span class="kw">ON</span> t2.<span class="ci">id_fk</span> = t1.<span class="ci">id</span><br>
+<span class="kw">WHERE</span>     t1.<span class="ci">id</span> <span class="kw">IS NULL</span>;<br><br>
+<span class="cm">-- Version synthétique : juste le nombre d'orphelins</span><br>
+<span class="kw">SELECT</span>    <span class="fn">COUNT</span>(*) <span class="kw">AS</span> nb_orphelins<br>
+<span class="kw">FROM</span>      table_2 t2<br>
+<span class="kw">LEFT JOIN</span> table_1 t1 <span class="kw">ON</span> t2.<span class="ci">id_fk</span> = t1.<span class="ci">id</span><br>
+<span class="kw">WHERE</span>     t1.<span class="ci">id</span> <span class="kw">IS NULL</span>;
+  </div>
+
+</section>
+
+<section id="sql" class="section">
+  <div class="section-header"><div class="section-icon">&#128455;</div><div><div class="section-title">SQL essentiel</div><div class="section-desc">Les patterns indispensables pour l&apos;analyse</div></div></div>
+  <h2>Structure d&apos;une requ&ecirc;te analytique</h2>
+  <div class="code-block">
+<span class="kw">SELECT</span>   <span class="cc">col_cat_1</span>, <span class="fn">SUM</span>(<span class="cn">col_num_1</span>) <span class="kw">AS</span> total<br>
+<span class="kw">FROM</span>     table_1<br>
+<span class="kw">JOIN</span>     table_2 <span class="kw">ON</span> table_1.<span class="ci">id</span> = table_2.<span class="ci">id_fk</span><br>
+<span class="kw">WHERE</span>    <span class="cc">col_cat_2</span> = <span class="str">'valeur'</span><br>
+<span class="kw">GROUP BY</span> <span class="cc">col_cat_1</span><br>
+<span class="kw">HAVING</span>   <span class="fn">SUM</span>(<span class="cn">col_num_1</span>) &gt; <span class="num">100</span><br>
+<span class="kw">ORDER BY</span> total <span class="kw">DESC</span>;
+  </div>
+  <h2>Agr&eacute;gations essentielles</h2>
+  <table>
+    <tr><th>Fonction</th><th>Usage</th></tr>
+    <tr><td><code>COUNT(*)</code></td><td>Compter les lignes</td></tr>
+    <tr><td><code>SUM(col_num)</code></td><td>Somme d&apos;une valeur num&eacute;rique</td></tr>
+    <tr><td><code>AVG(col_num)</code></td><td>Moyenne d&apos;une valeur num&eacute;rique</td></tr>
+    <tr><td><code>MIN/MAX(col_num)</code></td><td>Valeur extr&ecirc;me</td></tr>
+    <tr><td><code>COUNT(DISTINCT col_cat)</code></td><td>Valeurs uniques d&apos;une cat&eacute;gorie</td></tr>
+  </table>
+  <div class="tip"><strong>&#128161; Ordre d&apos;ex&eacute;cution SQL :</strong> FROM &rarr; JOIN &rarr; WHERE &rarr; GROUP BY &rarr; HAVING &rarr; SELECT &rarr; ORDER BY</div>
+</section>
+
+<section id="kpis" class="section">
+  <div class="section-header"><div class="section-icon">&#128202;</div><div><div class="section-title">KPIs &amp; m&eacute;triques</div><div class="section-desc">Comprendre, calculer et choisir les bons indicateurs</div></div></div>
+  <div class="cards">
+    <div class="card"><div class="card-icon">&#127919;</div><div class="card-title">Actionnable</div><div class="card-text">Si le KPI change, on doit pouvoir agir dessus.</div></div>
+    <div class="card"><div class="card-icon">&#128207;</div><div class="card-title">Mesurable pr&eacute;cis&eacute;ment</div><div class="card-text">La d&eacute;finition du calcul doit &ecirc;tre claire et reproductible.</div></div>
+    <div class="card"><div class="card-icon">&#9200;</div><div class="card-title">Compar&eacute; &agrave; une baseline</div><div class="card-text">Un chiffre seul ne dit rien. Toujours une r&eacute;f&eacute;rence.</div></div>
+  </div>
+  <div class="formula"><div class="formula-name">CHIFFRE D&apos;AFFAIRES</div><div class="formula-eq">CA = Quantit&eacute; vendue &times; Prix unitaire</div></div>
+  <div class="formula"><div class="formula-name">TAUX DE CONVERSION</div><div class="formula-eq">Taux = (Ventes / Prospects) &times; 100</div></div>
+  <div class="formula"><div class="formula-name">TAUX D&apos;ANNULATION</div><div class="formula-eq">Ann. = (Annul&eacute;es / Total r&eacute;servations) &times; 100</div></div>
+  <div class="formula"><div class="formula-name">CROISSANCE MoM / YoY</div><div class="formula-eq">= ((Valeur N &minus; Valeur N-1) / Valeur N-1) &times; 100</div></div>
+  <div class="tip"><strong>&#128161; La r&egrave;gle d&apos;or :</strong> &laquo;CA = 120K&euro; (+8% vs mois pr&eacute;c&eacute;dent)&raquo; est utile. &laquo;CA = 120K&euro;&raquo; l&apos;est beaucoup moins.</div>
+
+  <h2>Calculer ces KPIs en SQL</h2>
+
+  <div class="sql-concept">CA &mdash; chiffre d&apos;affaires et panier moyen</div>
+  <div class="code-block" data-level="DEBUTANT">
+<span class="cm">-- CA total</span><br>
+<span class="kw">SELECT</span> <span class="fn">SUM</span>(<span class="cn">col_num_1</span>) <span class="kw">AS</span> ca_total <span class="kw">FROM</span> table_1;<br><br>
+<span class="cm">-- Panier moyen = CA total / nombre de commandes distinctes</span><br>
+<span class="kw">SELECT</span><br>
+  <span class="fn">SUM</span>(<span class="cn">col_num_1</span>)                              <span class="kw">AS</span> ca_total,<br>
+  <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> <span class="ci">id</span>)                         <span class="kw">AS</span> nb_commandes,<br>
+  <span class="fn">ROUND</span>(<span class="fn">SUM</span>(<span class="cn">col_num_1</span>) / <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> <span class="ci">id</span>), <span class="num">2</span>) <span class="kw">AS</span> panier_moyen<br>
+<span class="kw">FROM</span> table_1;
+  </div>
+
+  <div class="sql-concept">CA par cat&eacute;gorie &mdash; avec part du total</div>
+  <div class="code-block" data-level="INTERMEDIAIRE">
+<span class="kw">SELECT</span><br>
+  <span class="cc">col_cat_1</span>,<br>
+  <span class="fn">SUM</span>(<span class="cn">col_num_1</span>)                                              <span class="kw">AS</span> ca,<br>
+  <span class="fn">ROUND</span>(<span class="fn">SUM</span>(<span class="cn">col_num_1</span>) * <span class="num">100.0</span> / <span class="fn">SUM</span>(<span class="fn">SUM</span>(<span class="cn">col_num_1</span>)) <span class="kw">OVER</span>(), <span class="num">1</span>) <span class="kw">AS</span> pct_total<br>
+<span class="kw">FROM</span>     table_1<br>
+<span class="kw">GROUP BY</span> <span class="cc">col_cat_1</span><br>
+<span class="kw">ORDER BY</span> ca <span class="kw">DESC</span>;
+  </div>
+
+  <div class="sql-concept">Croissance MoM &mdash; variation mois par mois</div>
+  <div class="code-block" data-level="INTERMEDIAIRE">
+<span class="kw">WITH</span> mensuel <span class="kw">AS</span> (<br>
+  <span class="kw">SELECT</span><br>
+    <span class="fn">FORMAT</span>(<span class="cd">col_date_1</span>, <span class="str">'yyyy-MM'</span>) <span class="kw">AS</span> mois,<br>
+    <span class="fn">SUM</span>(<span class="cn">col_num_1</span>)             <span class="kw">AS</span> total<br>
+  <span class="kw">FROM</span>     table_1<br>
+  <span class="kw">GROUP BY</span> <span class="fn">FORMAT</span>(<span class="cd">col_date_1</span>, <span class="str">'yyyy-MM'</span>)<br>
+)<br>
+<span class="kw">SELECT</span><br>
+  mois,<br>
+  total,<br>
+  <span class="fn">LAG</span>(total) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> mois)                                     <span class="kw">AS</span> total_precedent,<br>
+  <span class="fn">ROUND</span>(<br>
+    (total - <span class="fn">LAG</span>(total) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> mois)) * <span class="num">100.0</span><br>
+    / <span class="fn">NULLIF</span>(<span class="fn">LAG</span>(total) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> mois), <span class="num">0</span>), <span class="num">1</span><br>
+  )                                                                    <span class="kw">AS</span> var_mom_pct<br>
+<span class="kw">FROM</span>     mensuel<br>
+<span class="kw">ORDER BY</span> mois;
+  </div>
+
+  <div class="sql-concept">Taux &mdash; annulation, conversion, retour (pattern universel)</div>
+  <div class="code-block" data-level="INTERMEDIAIRE">
+<span class="cm">-- Adapter les valeurs ('annule', 'converti'...) à votre dataset</span><br>
+<span class="kw">SELECT</span><br>
+  <span class="fn">COUNT</span>(*)                                                                           <span class="kw">AS</span> total,<br>
+  <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> <span class="cc">col_cat_1</span> = <span class="str">'annule'</span>   <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">ELSE</span> <span class="num">0</span> <span class="kw">END</span>)                    <span class="kw">AS</span> nb_annules,<br>
+  <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> <span class="cc">col_cat_1</span> = <span class="str">'converti'</span> <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">ELSE</span> <span class="num">0</span> <span class="kw">END</span>)                    <span class="kw">AS</span> nb_convertis,<br>
+  <span class="fn">ROUND</span>(<span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> <span class="cc">col_cat_1</span> = <span class="str">'annule'</span>   <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">ELSE</span> <span class="num">0</span> <span class="kw">END</span>) * <span class="num">100.0</span> / <span class="fn">COUNT</span>(*), <span class="num">1</span>) <span class="kw">AS</span> taux_annulation_pct,<br>
+  <span class="fn">ROUND</span>(<span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> <span class="cc">col_cat_1</span> = <span class="str">'converti'</span> <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">ELSE</span> <span class="num">0</span> <span class="kw">END</span>) * <span class="num">100.0</span> / <span class="fn">COUNT</span>(*), <span class="num">1</span>) <span class="kw">AS</span> taux_conversion_pct<br>
+<span class="kw">FROM</span> table_1;
+  </div>
+
+  <h2>KPIs par domaine m&eacute;tier</h2>
+
+  <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent2);border-bottom:1px solid var(--accent2);margin:24px 0 6px;padding-bottom:3px;display:inline-block">Ventes &mdash; E-commerce</div>
+  <table>
+    <tr><th>KPI</th><th>Formule</th><th>Note</th></tr>
+    <tr><td><strong style="color:var(--accent2)">CA total</strong></td><td><code>SUM(quantit&eacute; &times; prix)</code></td><td>Toujours comparer &agrave; N&minus;1</td></tr>
+    <tr><td><strong style="color:var(--accent2)">Panier moyen (AOV)</strong></td><td><code>CA / COUNT(DISTINCT id_commande)</code></td><td>Segmenter par canal</td></tr>
+    <tr><td><strong style="color:var(--accent2)">Taux d&apos;annulation</strong></td><td><code>Annul&eacute;es / Total &times; 100</code></td><td>Surveiller les pics saisonniers</td></tr>
+    <tr><td><strong style="color:var(--accent2)">Taux de retour</strong></td><td><code>Retourn&eacute;es / Livr&eacute;es &times; 100</code></td><td>Impact direct sur CA net</td></tr>
+    <tr><td><strong style="color:var(--accent2)">Top clients (Pareto)</strong></td><td><code>RANK() sur CA par client</code></td><td>20% des clients = 80% du CA</td></tr>
+  </table>
+
+  <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent4);border-bottom:1px solid var(--accent4);margin:24px 0 6px;padding-bottom:3px;display:inline-block">Abonnements &mdash; SaaS</div>
+  <table>
+    <tr><th>KPI</th><th>Formule</th><th>Seuil &agrave; surveiller</th></tr>
+    <tr><td><strong style="color:var(--accent4)">Abonn&eacute;s actifs</strong></td><td><code>COUNT(statut = &apos;actif&apos;)</code></td><td>Snapshot &agrave; une date donn&eacute;e</td></tr>
+    <tr><td><strong style="color:var(--accent4)">Churn mensuel</strong></td><td><code>D&eacute;sabonn&eacute;s / Actifs d&eacute;but mois &times; 100</code></td><td>&lt; 5% = acceptable</td></tr>
+    <tr><td><strong style="color:var(--accent4)">Taux de r&eacute;tention</strong></td><td><code>100 &minus; Churn</code></td><td>&gt; 90% = sain</td></tr>
+    <tr><td><strong style="color:var(--accent4)">MRR</strong></td><td><code>SUM(abonnements actifs du mois)</code></td><td>Revenus r&eacute;currents mensuels</td></tr>
+    <tr><td><strong style="color:var(--accent4)">ARPU</strong></td><td><code>MRR / nb abonn&eacute;s</code></td><td>Revenu moyen par utilisateur</td></tr>
+  </table>
+
+  <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent3);border-bottom:1px solid var(--accent3);margin:24px 0 6px;padding-bottom:3px;display:inline-block">Ressources humaines</div>
+  <table>
+    <tr><th>KPI</th><th>Formule</th><th>Seuil &agrave; surveiller</th></tr>
+    <tr><td><strong style="color:var(--accent3)">Taux de turnover</strong></td><td><code>D&eacute;parts / Effectif moyen &times; 100</code></td><td>&lt; 10% = sain</td></tr>
+    <tr><td><strong style="color:var(--accent3)">Taux d&apos;absent&eacute;isme</strong></td><td><code>Jours abs. / Jours th&eacute;oriques &times; 100</code></td><td>Cible &lt; 3%</td></tr>
+    <tr><td><strong style="color:var(--accent3)">Anciennet&eacute; moyenne</strong></td><td><code>AVG(DATEDIFF(day, date_entr&eacute;e, date_sortie))</code></td><td>Indicateur de stabilit&eacute;</td></tr>
+    <tr><td><strong style="color:var(--accent3)">Co&ucirc;t moyen recrutement</strong></td><td><code>Budget recrut. / nb embauches</code></td><td>ROI RH</td></tr>
+  </table>
+
+  <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent1);border-bottom:1px solid var(--accent1);margin:24px 0 6px;padding-bottom:3px;display:inline-block">H&ocirc;tellerie &amp; H&eacute;bergement</div>
+  <table>
+    <tr><th>KPI</th><th>Formule</th><th>Seuil &agrave; surveiller</th></tr>
+    <tr><td><strong style="color:var(--accent1)">Taux d&apos;occupation</strong></td><td><code>Nuits vendues / Nuits disponibles &times; 100</code></td><td>&lt;&thinsp;60&thinsp;% hors saison basse</td></tr>
+    <tr><td><strong style="color:var(--accent1)">RevPAR</strong></td><td><code>CA h&eacute;bergement / Chambres disponibles</code></td><td>Baisse MoM &gt; 10&thinsp;%</td></tr>
+    <tr><td><strong style="color:var(--accent1)">ADR (prix moy. journalier)</strong></td><td><code>CA h&eacute;bergement / Nuits vendues</code></td><td>Inf&eacute;rieur au tarif affich&eacute;</td></tr>
+    <tr><td><strong style="color:var(--accent1)">ALOS (dur&eacute;e moy. s&eacute;jour)</strong></td><td><code>Total nuits / Nb s&eacute;jours</code></td><td>ALOS &lt; 1,5 &rarr; fort turnover</td></tr>
+    <tr><td><strong style="color:var(--accent1)">Taux d&apos;annulation</strong></td><td><code>Annulations / R&eacute;servations &times; 100</code></td><td>&gt;&thinsp;20&thinsp;% &rarr; revoir politique</td></tr>
+  </table>
+
+  <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent2);border-bottom:1px solid var(--accent2);margin:24px 0 6px;padding-bottom:3px;display:inline-block">Supply Chain &amp; Logistique</div>
+  <table>
+    <tr><th>KPI</th><th>Formule</th><th>Seuil &agrave; surveiller</th></tr>
+    <tr><td><strong style="color:var(--accent2)">Taux de service (fill rate)</strong></td><td><code>Commandes livr&eacute;es &agrave; temps / Total &times; 100</code></td><td>&lt;&thinsp;95&thinsp;%</td></tr>
+    <tr><td><strong style="color:var(--accent2)">Rotation des stocks</strong></td><td><code>CA / Valeur stock moyen</code></td><td>&lt;&thinsp;4 &rarr; surstockage probable</td></tr>
+    <tr><td><strong style="color:var(--accent2)">Lead Time moyen</strong></td><td><code>AVG(date_livraison &minus; date_commande)</code></td><td>Hausse &gt; 20&thinsp;% vs p&eacute;riode pr&eacute;c.</td></tr>
+    <tr><td><strong style="color:var(--accent2)">Taux de rupture</strong></td><td><code>Jours en rupture / Jours p&eacute;riode &times; 100</code></td><td>&gt;&thinsp;5&thinsp;%</td></tr>
+    <tr><td><strong style="color:var(--accent2)">Co&ucirc;t de stockage unitaire</strong></td><td><code>Co&ucirc;t entrep&ocirc;t / Unit&eacute;s stock&eacute;es</code></td><td>Hausse sans augmentation volume</td></tr>
+  </table>
+
+  <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent4);border-bottom:1px solid var(--accent4);margin:24px 0 6px;padding-bottom:3px;display:inline-block">Transport &amp; Mobilit&eacute;</div>
+  <table>
+    <tr><th>KPI</th><th>Formule</th><th>Seuil &agrave; surveiller</th></tr>
+    <tr><td><strong style="color:var(--accent4)">Taux de remplissage</strong></td><td><code>Passagers r&eacute;els / Capacit&eacute; &times; 100</code></td><td>&lt;&thinsp;40&thinsp;% &rarr; sous-utilisation</td></tr>
+    <tr><td><strong style="color:var(--accent4)">Ponctualit&eacute;</strong></td><td><code>Arriv&eacute;es &agrave; l&apos;heure / Total &times; 100</code></td><td>&lt;&thinsp;90&thinsp;%</td></tr>
+    <tr><td><strong style="color:var(--accent4)">Co&ucirc;t par km</strong></td><td><code>Co&ucirc;ts op&eacute;rationnels / km parcourus</code></td><td>Hausse &gt; 10&thinsp;% MoM</td></tr>
+    <tr><td><strong style="color:var(--accent4)">Fr&eacute;quence incidents</strong></td><td><code>Nb incidents / Nb trajets &times; 1&thinsp;000</code></td><td>Hausse concentr&eacute;e sur une ligne</td></tr>
+    <tr><td><strong style="color:var(--accent4)">Dur&eacute;e moy. de trajet</strong></td><td><code>AVG(heure_arriv&eacute;e &minus; heure_d&eacute;part)</code></td><td>D&eacute;passe l&apos;horaire th&eacute;orique</td></tr>
+  </table>
+
+</section>
+
+<section id="stats" class="section">
+  <div class="section-header"><div class="section-icon">&#128208;</div><div><div class="section-title">Statistiques cl&eacute;s</div><div class="section-desc">Les concepts fondamentaux pour comprendre vos donn&eacute;es</div></div></div>
+  <h2>1. Tendance centrale</h2>
+  <table>
+    <tr><th>Mesure</th><th>D&eacute;finition</th><th>Quand l&apos;utiliser</th><th>SQL</th></tr>
+    <tr><td><strong style="color:var(--accent2)">Moyenne</strong></td><td>Somme &divide; nombre</td><td>Donn&eacute;es sans outliers</td><td><code>AVG(col_num)</code></td></tr>
+    <tr><td><strong style="color:var(--accent4)">M&eacute;diane</strong></td><td>Valeur du milieu</td><td>Pr&eacute;sence d&apos;outliers</td><td><code>PERCENTILE_CONT(0.5)</code></td></tr>
+    <tr><td><strong style="color:var(--accent1)">Mode</strong></td><td>Valeur la plus fr&eacute;quente</td><td>Donn&eacute;es cat&eacute;gorielles</td><td><code>GROUP BY + TOP 1</code></td></tr>
+  </table>
+  <div class="highlight"><strong>Exemple :</strong> Revenus 100&euro;, 100&euro;, 110&euro;, 120&euro;, 5&thinsp;000&euro; &rarr; Moyenne = 1&thinsp;086&euro; (faussée par l&rsquo;outlier) &middot; M&eacute;diane = 110&euro; (repr&eacute;sentative). Pour les revenus, pr&eacute;f&eacute;rez toujours la m&eacute;diane.</div>
+  <div class="code-block" data-level="DEBUTANT">
+<span class="cm">-- Mode : valeur la plus fréquente d'une colonne catégorielle</span><br>
+<span class="kw">SELECT TOP</span> <span class="num">1</span> <span class="cc">col_cat_1</span>, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> nb<br>
+<span class="kw">FROM</span>     table_1<br>
+<span class="kw">GROUP BY</span> <span class="cc">col_cat_1</span><br>
+<span class="kw">ORDER BY</span> nb <span class="kw">DESC</span>;
+  </div>
+
+  <h2>2. Dispersion &mdash; mesurer la variabilit&eacute;</h2>
+  <table>
+    <tr><th>Mesure</th><th>D&eacute;finition</th><th>SQL</th><th>Robuste aux outliers&nbsp;?</th></tr>
+    <tr><td><strong style="color:var(--accent2)">&Eacute;cart-type</strong></td><td>Dispersion autour de la moyenne</td><td><code>STDEV(col_num)</code></td><td>Non</td></tr>
+    <tr><td><strong style="color:var(--accent4)">Variance</strong></td><td>&Eacute;cart-type au carr&eacute;</td><td><code>VAR(col_num)</code></td><td>Non</td></tr>
+    <tr><td><strong style="color:var(--accent1)">Plage (Range)</strong></td><td>MAX &minus; MIN</td><td><code>MAX(col) - MIN(col)</code></td><td>Non</td></tr>
+    <tr><td><strong style="color:var(--accent3)">IQR</strong></td><td>Q3 &minus; Q1 (50% central)</td><td><code>PERC_CONT(0.75) - PERC_CONT(0.25)</code></td><td><strong>Oui</strong></td></tr>
+  </table>
+  <div class="code-block" data-level="INTERMEDIAIRE">
+<span class="kw">SELECT</span><br>
+  <span class="fn">ROUND</span>(<span class="fn">STDEV</span>(<span class="cn">col_num_1</span>), <span class="num">2</span>)                                              <span class="kw">AS</span> ecart_type,<br>
+  <span class="fn">ROUND</span>(<span class="fn">VAR</span>(<span class="cn">col_num_1</span>), <span class="num">2</span>)                                                <span class="kw">AS</span> variance,<br>
+  <span class="fn">MAX</span>(<span class="cn">col_num_1</span>) - <span class="fn">MIN</span>(<span class="cn">col_num_1</span>)                                         <span class="kw">AS</span> plage,<br>
+  <span class="fn">PERCENTILE_CONT</span>(<span class="num">0.75</span>) <span class="kw">WITHIN GROUP</span> (<span class="kw">ORDER BY</span> <span class="cn">col_num_1</span>)<br>
+  - <span class="fn">PERCENTILE_CONT</span>(<span class="num">0.25</span>) <span class="kw">WITHIN GROUP</span> (<span class="kw">ORDER BY</span> <span class="cn">col_num_1</span>)              <span class="kw">AS</span> iqr<br>
+<span class="kw">FROM</span> table_1;
+  </div>
+  <div class="tip"><strong>Pr&eacute;f&eacute;rer l&apos;IQR &agrave; l&apos;&eacute;cart-type</strong> quand le dataset contient des outliers &mdash; l&apos;&eacute;cart-type en est tr&egrave;s sensible, l&apos;IQR ne l&apos;est pas.</div>
+
+  <h2>3. Percentiles &amp; quartiles</h2>
+  <p>Les quartiles divisent le dataset en 4 parties &eacute;gales. Ils permettent de comprendre la r&eacute;partition des valeurs et de segmenter sans fixer de seuils arbitraires.</p>
+  <table>
+    <tr><th>Quartile</th><th>Percentile</th><th>Signification</th></tr>
+    <tr><td><strong style="color:var(--accent2)">Q1</strong></td><td>25e</td><td>25% des valeurs sont en dessous</td></tr>
+    <tr><td><strong style="color:var(--accent4)">Q2 (m&eacute;diane)</strong></td><td>50e</td><td>50% des valeurs sont en dessous</td></tr>
+    <tr><td><strong style="color:var(--accent1)">Q3</strong></td><td>75e</td><td>75% des valeurs sont en dessous</td></tr>
+    <tr><td><strong style="color:var(--accent3)">IQR</strong></td><td>Q3 &minus; Q1</td><td>La plage des 50% centraux</td></tr>
+  </table>
+  <div class="code-block" data-level="INTERMEDIAIRE">
+<span class="cm">-- Q1, médiane, Q3 et IQR en une requête</span><br>
+<span class="kw">SELECT</span><br>
+  <span class="fn">PERCENTILE_CONT</span>(<span class="num">0.25</span>) <span class="kw">WITHIN GROUP</span> (<span class="kw">ORDER BY</span> <span class="cn">col_num_1</span>) <span class="kw">AS</span> q1,<br>
+  <span class="fn">PERCENTILE_CONT</span>(<span class="num">0.50</span>) <span class="kw">WITHIN GROUP</span> (<span class="kw">ORDER BY</span> <span class="cn">col_num_1</span>) <span class="kw">AS</span> q2_mediane,<br>
+  <span class="fn">PERCENTILE_CONT</span>(<span class="num">0.75</span>) <span class="kw">WITHIN GROUP</span> (<span class="kw">ORDER BY</span> <span class="cn">col_num_1</span>) <span class="kw">AS</span> q3,<br>
+  <span class="fn">PERCENTILE_CONT</span>(<span class="num">0.75</span>) <span class="kw">WITHIN GROUP</span> (<span class="kw">ORDER BY</span> <span class="cn">col_num_1</span>)<br>
+  - <span class="fn">PERCENTILE_CONT</span>(<span class="num">0.25</span>) <span class="kw">WITHIN GROUP</span> (<span class="kw">ORDER BY</span> <span class="cn">col_num_1</span>) <span class="kw">AS</span> iqr<br>
+<span class="kw">FROM</span> table_1;<br><br>
+<span class="cm">-- Classer chaque ligne dans son quartile (1 = bas, 4 = haut)</span><br>
+<span class="kw">SELECT</span><br>
+  <span class="cc">col_cat_1</span>, <span class="cn">col_num_1</span>,<br>
+  <span class="fn">NTILE</span>(<span class="num">4</span>) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> <span class="cn">col_num_1</span>) <span class="kw">AS</span> quartile<br>
+<span class="kw">FROM</span> table_1;<br><br>
+<span class="cm">-- Résumé statistique par quartile</span><br>
+<span class="kw">WITH</span> segmente <span class="kw">AS</span> (<br>
+  <span class="kw">SELECT</span> <span class="cn">col_num_1</span>, <span class="fn">NTILE</span>(<span class="num">4</span>) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> <span class="cn">col_num_1</span>) <span class="kw">AS</span> quartile<br>
+  <span class="kw">FROM</span> table_1<br>
+)<br>
+<span class="kw">SELECT</span>   quartile, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> nb, <span class="fn">ROUND</span>(<span class="fn">AVG</span>(<span class="cn">col_num_1</span>), <span class="num">2</span>) <span class="kw">AS</span> moyenne<br>
+<span class="kw">FROM</span>     segmente<br>
+<span class="kw">GROUP BY</span> quartile<br>
+<span class="kw">ORDER BY</span> quartile;
+  </div>
+  <div class="tip"><strong>Usage concret :</strong> <code>NTILE(4)</code> classe vos clients en 4 groupes selon leur CA &mdash; sans avoir &agrave; d&eacute;finir des seuils arbitraires.</div>
+
+  <h2>4. Forme de la distribution</h2>
+  <div class="cards">
+    <div class="card">
+      <div class="card-icon">&#8776;</div>
+      <div class="card-title">Sym&eacute;trique</div>
+      <div class="card-text"><strong style="color:var(--accent2)">Moyenne &asymp; M&eacute;diane</strong><br><br>Donn&eacute;es bien r&eacute;parties. La moyenne est un bon indicateur.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#8594;</div>
+      <div class="card-title">Asym&eacute;trie droite</div>
+      <div class="card-text"><strong style="color:var(--accent1)">Moyenne &gt; M&eacute;diane</strong><br><br>Queue vers les valeurs &eacute;lev&eacute;es. Ex&nbsp;: salaires, prix. <strong>Pr&eacute;f&eacute;rer la m&eacute;diane.</strong></div>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#8592;</div>
+      <div class="card-title">Asym&eacute;trie gauche</div>
+      <div class="card-text"><strong style="color:var(--accent3)">Moyenne &lt; M&eacute;diane</strong><br><br>Queue vers les valeurs basses. Ex&nbsp;: notes, satisfaction.</div>
+    </div>
+  </div>
+  <div class="code-block" data-level="INTERMEDIAIRE">
+<span class="cm">-- Détecter la forme de distribution automatiquement</span><br>
+<span class="kw">SELECT</span><br>
+  <span class="fn">ROUND</span>(<span class="fn">AVG</span>(<span class="cn">col_num_1</span>), <span class="num">2</span>)                                                     <span class="kw">AS</span> moyenne,<br>
+  <span class="fn">ROUND</span>(<span class="fn">PERCENTILE_CONT</span>(<span class="num">0.5</span>) <span class="kw">WITHIN GROUP</span> (<span class="kw">ORDER BY</span> <span class="cn">col_num_1</span>), <span class="num">2</span>)      <span class="kw">AS</span> mediane,<br>
+  <span class="kw">CASE</span><br>
+    <span class="kw">WHEN</span> <span class="fn">AVG</span>(<span class="cn">col_num_1</span>) &gt; <span class="fn">PERCENTILE_CONT</span>(<span class="num">0.5</span>) <span class="kw">WITHIN GROUP</span> (<span class="kw">ORDER BY</span> <span class="cn">col_num_1</span>) * <span class="num">1.05</span><br>
+         <span class="kw">THEN</span> <span class="str">'Asymétrie droite (outliers hauts)'</span><br>
+    <span class="kw">WHEN</span> <span class="fn">AVG</span>(<span class="cn">col_num_1</span>) &lt; <span class="fn">PERCENTILE_CONT</span>(<span class="num">0.5</span>) <span class="kw">WITHIN GROUP</span> (<span class="kw">ORDER BY</span> <span class="cn">col_num_1</span>) * <span class="num">0.95</span><br>
+         <span class="kw">THEN</span> <span class="str">'Asymétrie gauche (outliers bas)'</span><br>
+    <span class="kw">ELSE</span>     <span class="str">'Distribution symétrique'</span><br>
+  <span class="kw">END</span>                                                                              <span class="kw">AS</span> forme<br>
+<span class="kw">FROM</span> table_1;
+  </div>
+
+  <h2>5. Corr&eacute;lation</h2>
+  <p>Le coefficient <strong>r</strong> mesure la force et la direction d&apos;une relation lin&eacute;aire entre deux variables num&eacute;riques. Il varie de &minus;1 &agrave; +1.</p>
+  <table>
+    <tr><th>Valeur de r</th><th>Interpr&eacute;tation</th></tr>
+    <tr><td><strong style="color:#86efac">0,7 &agrave; 1</strong></td><td>Forte positive &mdash; quand X monte, Y monte fortement</td></tr>
+    <tr><td><strong style="color:var(--accent2)">0,3 &agrave; 0,7</strong></td><td>Mod&eacute;r&eacute;e positive</td></tr>
+    <tr><td><strong style="color:var(--muted)">&minus;0,3 &agrave; 0,3</strong></td><td>Pas de corr&eacute;lation notable</td></tr>
+    <tr><td><strong style="color:var(--accent1)">&minus;0,7 &agrave; &minus;0,3</strong></td><td>Mod&eacute;r&eacute;e n&eacute;gative</td></tr>
+    <tr><td><strong style="color:var(--accent3)">&minus;1 &agrave; &minus;0,7</strong></td><td>Forte n&eacute;gative &mdash; quand X monte, Y descend fortement</td></tr>
+  </table>
+  <div class="code-block" data-level="AVANCE">
+<span class="cm">-- Corrélation de Pearson entre deux colonnes numériques</span><br>
+<span class="kw">SELECT</span> <span class="fn">ROUND</span>(<br>
+  (<span class="fn">AVG</span>(<span class="cn">col_num_1</span> * <span class="cn">col_num_2</span>) - <span class="fn">AVG</span>(<span class="cn">col_num_1</span>) * <span class="fn">AVG</span>(<span class="cn">col_num_2</span>))<br>
+  / (<span class="fn">STDEV</span>(<span class="cn">col_num_1</span>) * <span class="fn">STDEV</span>(<span class="cn">col_num_2</span>))<br>
+, <span class="num">3</span>) <span class="kw">AS</span> correlation_pearson<br>
+<span class="kw">FROM</span> table_1;<br><br>
+<span class="cm">-- Dans Excel : =CORREL(plage1 ; plage2)</span>
+  </div>
+  <div class="highlight"><strong>&#9888;&#65039; Corr&eacute;lation &ne; Causalit&eacute;.</strong> Les ventes de glaces et les noyades sont corr&eacute;l&eacute;es (les deux augmentent en &eacute;t&eacute;) &mdash; ce n&apos;est pas la glace qui cause les noyades, c&apos;est la chaleur. La corr&eacute;lation dit &laquo;&thinsp;ces variables bougent ensemble&thinsp;&raquo;, pas <em>pourquoi</em>.</div>
+
+  <h2>6. Loi de Pareto (80/20)</h2>
+  <div class="highlight"><strong>Principe :</strong> Dans la plupart des datasets m&eacute;tier, 20% des entit&eacute;s (clients, produits, r&eacute;gions...) g&eacute;n&egrave;rent 80% de la valeur. Les identifier est souvent l&apos;insight le plus actionnable d&apos;une analyse.</div>
+  <div class="code-block" data-level="AVANCE">
+<span class="cm">-- Identifier les entités qui représentent les 80 premiers % du CA</span><br>
+<span class="kw">WITH</span> par_entite <span class="kw">AS</span> (<br>
+  <span class="kw">SELECT</span>   <span class="ci">id</span>, <span class="fn">SUM</span>(<span class="cn">col_num_1</span>) <span class="kw">AS</span> ca<br>
+  <span class="kw">FROM</span>     table_1<br>
+  <span class="kw">GROUP BY</span> <span class="ci">id</span><br>
+),<br>
+avec_cumul <span class="kw">AS</span> (<br>
+  <span class="kw">SELECT</span><br>
+    <span class="ci">id</span>, ca,<br>
+    <span class="fn">SUM</span>(ca) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> ca <span class="kw">DESC</span>) <span class="kw">AS</span> cumul,<br>
+    <span class="fn">SUM</span>(ca) <span class="kw">OVER</span> ()                  <span class="kw">AS</span> total<br>
+  <span class="kw">FROM</span> par_entite<br>
+)<br>
+<span class="kw">SELECT</span><br>
+  <span class="ci">id</span>,<br>
+  ca,<br>
+  <span class="fn">ROUND</span>(cumul * <span class="num">100.0</span> / total, <span class="num">1</span>) <span class="kw">AS</span> cumul_pct<br>
+<span class="kw">FROM</span>  avec_cumul<br>
+<span class="kw">WHERE</span> cumul * <span class="num">100.0</span> / total &lt;= <span class="num">80</span>    <span class="cm">-- ← les 80% premiers</span><br>
+<span class="kw">ORDER BY</span> ca <span class="kw">DESC</span>;
+  </div>
+  <div class="tip"><strong>Variante :</strong> Remplacer <code>id</code> par <code>col_cat_1</code> (produit, r&eacute;gion, canal...) pour identifier les 20% de cat&eacute;gories qui font 80% du r&eacute;sultat.</div>
+
+</section>
+
+<section id="insights" class="section">
+  <div class="section-header"><div class="section-icon">&#128161;</div><div><div class="section-title">Trouver des insights</div><div class="section-desc">Comment passer d&apos;un chiffre &agrave; une conclusion utile</div></div></div>
+  <div class="highlight"><strong>D&eacute;finition :</strong> Un insight implique une <em>action</em>. &laquo;Le CA baisse&raquo; n&apos;est pas un insight. &laquo;Le CA baisse uniquement sur les r&eacute;servations de derni&egrave;re minute, sugg&eacute;rant un probl&egrave;me tarifaire&raquo; &mdash; &ccedil;a, c&apos;est un insight.</div>
+  <h2>Les 7 r&eacute;flexes pour trouver un insight</h2>
+  <div class="steps">
+    <div class="step"><div class="step-num" style="border-color:var(--accent1);color:var(--accent1)">1</div><div class="step-body"><div class="step-title">Comparer dans le temps</div><div class="step-text">Un chiffre isol&eacute; ne dit rien. Comparez toujours &agrave; N&minus;1 ou &agrave; la p&eacute;riode pr&eacute;c&eacute;dente pour d&eacute;tecter les ruptures.<br><span style="color:var(--accent1);font-family:var(--font-mono);font-size:.78rem">&rarr; Stable toute l&apos;ann&eacute;e, puis &minus;30% en mars ? Creusez mars.</span></div></div></div>
+    <div class="step"><div class="step-num" style="border-color:var(--accent2);color:var(--accent2)">2</div><div class="step-body"><div class="step-title">Segmenter &amp; d&eacute;composer</div><div class="step-text">Une moyenne cache toujours des extr&ecirc;mes. D&eacute;composez par r&eacute;gion, canal, produit, profil client jusqu&apos;&agrave; trouver o&ugrave; la diff&eacute;rence est r&eacute;elle.<br><span style="color:var(--accent2);font-family:var(--font-mono);font-size:.78rem">&rarr; Panier moyen 85&euro; &mdash; mais 120&euro; en ligne vs 40&euro; en magasin.</span></div></div></div>
+    <div class="step"><div class="step-num" style="border-color:var(--accent4);color:var(--accent4)">3</div><div class="step-body"><div class="step-title">Chercher les anomalies</div><div class="step-text">Ce qui sort de l&apos;ordinaire est souvent le plus int&eacute;ressant. Les anomalies sont des hypoth&egrave;ses d&eacute;guis&eacute;es &mdash; ne les ignorez jamais.<br><span style="color:var(--accent4);font-family:var(--font-mono);font-size:.78rem">&rarr; Un produit qui chute un jour pr&eacute;cis, un pic isol&eacute; sur une seule r&eacute;gion.</span></div></div></div>
+    <div class="step"><div class="step-num" style="border-color:var(--accent3);color:var(--accent3)">4</div><div class="step-body"><div class="step-title">Appliquer la r&egrave;gle du &laquo;&thinsp;Et alors ?&thinsp;&raquo;</div><div class="step-text">R&eacute;p&eacute;tez la question 3 fois minimum apr&egrave;s chaque observation. Chaque r&eacute;ponse vous rapproche de la cause r&eacute;elle &mdash; et d&apos;une action concr&egrave;te.</div></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-body"><div class="step-title">Ancrer &agrave; une baseline</div><div class="step-text">30% est-il bon ou mauvais ? Sans r&eacute;f&eacute;rence (objectif, m&ecirc;me p&eacute;riode N&minus;1, benchmark secteur), impossible de conclure.<br><span style="color:var(--muted);font-family:var(--font-mono);font-size:.78rem">&rarr; Toujours : valeur + comparaison + &eacute;cart.</span></div></div></div>
+    <div class="step"><div class="step-num">6</div><div class="step-body"><div class="step-title">Croiser deux variables</div><div class="step-text">Les croisements r&eacute;v&egrave;lent des patterns invisibles s&eacute;par&eacute;ment. Un signal fort peut dispara&icirc;tre dans une moyenne globale.<br><span style="color:var(--muted);font-family:var(--font-mono);font-size:.78rem">&rarr; Taux d&apos;annulation normal en global&hellip; mais 3&times; plus &eacute;lev&eacute; sur r&eacute;servations &gt; 30 j.</span></div></div></div>
+    <div class="step"><div class="step-num">7</div><div class="step-body"><div class="step-title">Formuler et tester une hypoth&egrave;se</div><div class="step-text">Proposez une explication, puis cherchez &agrave; la confirmer <em>ou</em> &agrave; l&apos;infirmer dans les donn&eacute;es. Un insight non v&eacute;rifi&eacute; est une opinion.<br><span style="color:var(--muted);font-family:var(--font-mono);font-size:.78rem">&rarr; &laquo;Je pense que la baisse vient des clients &lt; 6 mois&raquo; &rarr; testez-le.</span></div></div></div>
+  </div>
+
+  <h2>Templates par type d&apos;insight</h2>
+  <div class="cards">
+    <div class="card" style="border-color:var(--accent1)">
+      <div class="card-icon">&#128200;</div>
+      <div class="card-title" style="color:var(--accent1)">Tendance</div>
+      <div class="card-text" style="color:var(--text);line-height:1.8"><em>&laquo;Le [KPI] a [augment&eacute; / chut&eacute;] de [X%] entre [p&eacute;riode A] et [p&eacute;riode B]. Contrairement &agrave; [tendance habituelle], cela co&iuml;ncide avec [&eacute;v&eacute;nement]. Recommandation&nbsp;: [action].&raquo;</em></div>
+    </div>
+    <div class="card" style="border-color:var(--accent3)">
+      <div class="card-icon">&#9888;&#65039;</div>
+      <div class="card-title" style="color:var(--accent3)">Anomalie</div>
+      <div class="card-text" style="color:var(--text);line-height:1.8"><em>&laquo;[KPI] sur [segment] est [X fois] [sup&eacute;rieur / inf&eacute;rieur] &agrave; la moyenne ([valeur] vs [moy.]). Ce comportement est isol&eacute; &agrave; [conditions]. Cause probable&nbsp;: [hypoth&egrave;se]. &Agrave; investiguer&nbsp;: [piste].&raquo;</em></div>
+    </div>
+    <div class="card" style="border-color:var(--accent2)">
+      <div class="card-icon">&#8596;</div>
+      <div class="card-title" style="color:var(--accent2)">Comparaison</div>
+      <div class="card-text" style="color:var(--text);line-height:1.8"><em>&laquo;[Segment A] performe [X%] [mieux / moins bien] que [Segment B] sur [KPI]. La diff&eacute;rence principale r&eacute;side dans [variable cl&eacute;]. Recommandation&nbsp;: [reproduire A / corriger B].&raquo;</em></div>
+    </div>
+    <div class="card" style="border-color:var(--accent4)">
+      <div class="card-icon">&#128279;</div>
+      <div class="card-title" style="color:var(--accent4)">Corr&eacute;lation</div>
+      <div class="card-text" style="color:var(--text);line-height:1.8"><em>&laquo;[Variable X] et [Variable Y] &eacute;voluent ensemble (r &asymp; [valeur]). Quand [X augmente], [Y suit]. Cela sugg&egrave;re [relation]. &Agrave; valider&nbsp;: [test / exp&eacute;rience &agrave; mener].&raquo;</em></div>
+    </div>
+  </div>
+
+  <h2>Avant &rarr; Apr&egrave;s &mdash; exemples concrets</h2>
+  <table>
+    <tr><th>&#10060;&nbsp; Observation brute</th><th>&#10003;&nbsp; Insight actionnable</th></tr>
+    <tr>
+      <td style="color:var(--accent3);vertical-align:top"><em>&laquo;Les ventes ont augment&eacute; en d&eacute;cembre.&raquo;</em></td>
+      <td><em>&laquo;Le CA de d&eacute;cembre (+28% vs N&minus;1) est tir&eacute; par 3 produits Cadeaux repr&eacute;sentant 71% du CA mensuel &mdash; hors de ces r&eacute;f&eacute;rences, les ventes stagnent. Recommandation&nbsp;: anticiper les stocks de ces 3 SKU d&egrave;s octobre.&raquo;</em></td>
+    </tr>
+    <tr>
+      <td style="color:var(--accent3);vertical-align:top"><em>&laquo;Le turnover est &eacute;lev&eacute; ce trimestre.&raquo;</em></td>
+      <td><em>&laquo;Le turnover Q3 (18%) est concentr&eacute; &agrave; 80% sur les collaborateurs de moins de 6 mois (42% sur ce segment), p&eacute;riode o&ugrave; 3 managers ont &eacute;t&eacute; remplac&eacute;s. Recommandation&nbsp;: audit du parcours d&apos;onboarding.&raquo;</em></td>
+    </tr>
+    <tr>
+      <td style="color:var(--accent3);vertical-align:top"><em>&laquo;Le taux d&apos;occupation baisse.&raquo;</em></td>
+      <td><em>&laquo;Le taux d&apos;occupation de juillet (&minus;12&thinsp;pts vs N&minus;1) chute uniquement sur les r&eacute;servations de derni&egrave;re minute (J&minus;3), qui repr&eacute;sentaient 35% du volume. Les r&eacute;servations anticip&eacute;es restent stables. Recommandation&nbsp;: revoir la tarification J&minus;3.&raquo;</em></td>
+    </tr>
+  </table>
+
+  <h2>Le test des 3 &laquo;&thinsp;Et alors&thinsp;?&raquo;</h2>
+  <div class="highlight"><strong>M&eacute;thode :</strong> Partez de votre observation brute. Posez &laquo;&thinsp;Et alors&thinsp;?&raquo; trois fois de suite. Chaque r&eacute;ponse creuse un niveau de plus vers la cause r&eacute;elle &mdash; et vers une action concr&egrave;te.</div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num" style="border-color:var(--muted);color:var(--muted);font-size:11px">OBS</div>
+      <div class="step-body"><div class="step-title">Observation initiale</div><div class="step-text" style="color:var(--text)">&laquo;Le CA de mars est de 120&thinsp;000&euro;.&raquo;</div></div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="border-color:var(--accent1);color:var(--accent1);font-size:11px">? 1</div>
+      <div class="step-body"><div class="step-title" style="color:var(--accent1)">Et alors&nbsp;?</div><div class="step-text">&laquo;C&apos;est &minus;18% vs mars N&minus;1 &mdash; soit 26&thinsp;000&euro; de manque &agrave; gagner.&raquo;</div></div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="border-color:var(--accent1);color:var(--accent1);font-size:11px">? 2</div>
+      <div class="step-body"><div class="step-title" style="color:var(--accent1)">Et alors&nbsp;?</div><div class="step-text">&laquo;La baisse est concentr&eacute;e sur les clients existants (&minus;31%). Les nouveaux clients progressent (+12%).&raquo;</div></div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="border-color:var(--accent1);color:var(--accent1);font-size:11px">? 3</div>
+      <div class="step-body"><div class="step-title" style="color:var(--accent1)">Et alors&nbsp;?</div><div class="step-text">&laquo;Les clients existants commandent moins souvent&nbsp;: fr&eacute;quence pass&eacute;e de 2,1 &agrave; 1,4 commandes/mois depuis f&eacute;vrier.&raquo;</div></div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="border-color:var(--accent2);color:var(--accent2)">&#10003;</div>
+      <div class="step-body"><div class="step-title" style="color:var(--accent2)">Insight actionnable</div><div class="step-text" style="color:var(--text)">&laquo;Le programme de fid&eacute;lit&eacute; ne stimule plus la fr&eacute;quence d&apos;achat des clients existants depuis f&eacute;vrier. Recommandation&nbsp;: revoir les incentives ou lancer une campagne de r&eacute;activation cibl&eacute;e.&raquo;</div></div>
+    </div>
+  </div>
+
+  <h2>Ce qui n&apos;est <em>pas</em> un insight</h2>
+  <table>
+    <tr><th>&#10060;&nbsp; Pas un insight</th><th>Pourquoi &ccedil;a ne suffit pas</th><th>Ce qu&apos;il manque</th></tr>
+    <tr><td><em>&laquo;Le CA a augment&eacute;.&raquo;</em></td><td>Pas compar&eacute;, pas segment&eacute;, pas actionnable</td><td>De combien&nbsp;? vs quoi&nbsp;? sur quel segment&nbsp;?</td></tr>
+    <tr><td><em>&laquo;Il y a 15% de NULLs sur col_region.&raquo;</em></td><td>Observation technique sans impact m&eacute;tier</td><td>Quel effet sur l&apos;analyse&nbsp;? Que faire&nbsp;?</td></tr>
+    <tr><td><em>&laquo;La cat&eacute;gorie A repr&eacute;sente 40% du CA.&raquo;</em></td><td>Snapshot sans tendance ni contexte</td><td>Est-ce en hausse&nbsp;? Normal&nbsp;? Vs objectif&nbsp;?</td></tr>
+    <tr><td><em>&laquo;Les ventes varient selon les mois.&raquo;</em></td><td>Trop vague, aucune direction actionnable</td><td>Quels mois&nbsp;? Pourquoi&nbsp;? Que changer&nbsp;?</td></tr>
+    <tr><td><em>&laquo;Les clients satisfaits ach&egrave;tent plus.&raquo;</em></td><td>Corr&eacute;lation &eacute;vidente, z&eacute;ro diff&eacute;rentiel</td><td>Quel segment&nbsp;? Quel levier&nbsp;? Combien&nbsp;?</td></tr>
+  </table>
+
+  <h2>Checklist avant de pr&eacute;senter</h2>
+  <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;margin:16px 0">
+    <li style="display:flex;align-items:flex-start;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-size:.9rem"><span style="color:var(--accent2);flex-shrink:0;font-size:1rem">&#10003;</span><span>Le chiffre est <strong>compar&eacute; &agrave; une baseline</strong> (N&minus;1, objectif, benchmark secteur)</span></li>
+    <li style="display:flex;align-items:flex-start;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-size:.9rem"><span style="color:var(--accent2);flex-shrink:0;font-size:1rem">&#10003;</span><span>L&apos;observation est <strong>segment&eacute;e</strong> &mdash; pas une moyenne globale</span></li>
+    <li style="display:flex;align-items:flex-start;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-size:.9rem"><span style="color:var(--accent2);flex-shrink:0;font-size:1rem">&#10003;</span><span>La <strong>cause probable</strong> est identifi&eacute;e, pas juste le sympt&ocirc;me</span></li>
+    <li style="display:flex;align-items:flex-start;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-size:.9rem"><span style="color:var(--accent2);flex-shrink:0;font-size:1rem">&#10003;</span><span>Une <strong>action concr&egrave;te</strong> est propos&eacute;e &mdash; pas juste une conclusion</span></li>
+    <li style="display:flex;align-items:flex-start;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-size:.9rem"><span style="color:var(--accent2);flex-shrink:0;font-size:1rem">&#10003;</span><span>L&apos;<strong>hypoth&egrave;se inverse</strong> a &eacute;t&eacute; test&eacute;e &mdash; y a-t-il une autre explication plausible&nbsp;?</span></li>
+    <li style="display:flex;align-items:flex-start;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-size:.9rem"><span style="color:var(--accent2);flex-shrink:0;font-size:1rem">&#10003;</span><span>L&apos;<strong>audience cible</strong> est claire &mdash; qui doit agir&nbsp;? (direction, ops, marketing&hellip;)</span></li>
+  </ul>
+</section>
+
+<!-- COMMUNICATION -->
+<section id="communication" class="section">
+  <div class="section-header"><div class="section-icon">&#127908;</div><div><div class="section-title">Communiquer ses r&eacute;sultats</div><div class="section-desc">Passer de l&apos;analyse au message &mdash; storytelling, structure et clart&eacute;</div></div></div>
+  <div class="highlight"><strong>La r&egrave;gle d&apos;or :</strong> Vos donn&eacute;es sont aussi bonnes que votre capacit&eacute; &agrave; les expliquer. Un insight que personne ne comprend ne g&eacute;n&egrave;re aucune action. La communication <em>fait partie</em> de l&apos;analyse.</div>
+
+  <h2>1. Le principe BLUF &mdash; Bottom Line Up Front</h2>
+  <div class="cards">
+    <div class="card" style="border-color:var(--accent3)">
+      <div class="card-icon">&#10060;</div>
+      <div class="card-title" style="color:var(--accent3)">Approche classique (mauvaise)</div>
+      <div class="card-text">Contexte &rarr; Donn&eacute;es &rarr; Analyse &rarr; <strong>Conclusion</strong><br><br>L&apos;audience attend 10 minutes avant de savoir pourquoi elle est l&agrave;. Elle d&eacute;croche avant la fin.</div>
+    </div>
+    <div class="card" style="border-color:var(--accent2)">
+      <div class="card-icon">&#10003;</div>
+      <div class="card-title" style="color:var(--accent2)">Approche BLUF (efficace)</div>
+      <div class="card-text"><strong>Conclusion</strong> &rarr; Preuves &rarr; Contexte &rarr; Recommandation<br><br>L&apos;audience sait d&egrave;s la premi&egrave;re phrase o&ugrave; vous voulez en venir. Le reste vient valider.</div>
+    </div>
+  </div>
+  <div class="tip"><strong>&#128161; En pratique :</strong> La premi&egrave;re phrase de votre pr&eacute;sentation doit contenir la conclusion. &laquo;Notre taux de churn a doubl&eacute; en 3 mois sur les clients &lt; 6 mois, ce qui co&ucirc;te 40K&euro;/mois. Voici pourquoi et comment y rem&eacute;dier.&raquo;</div>
+
+  <h2>2. Le framework SCR &mdash; Situation &rarr; Complication &rarr; R&eacute;solution</h2>
+  <p>Structure narrative issue du conseil (McKinsey). Universelle, applicable &agrave; tout rapport ou pr&eacute;sentation.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num" style="border-color:var(--accent2);color:var(--accent2)">S</div>
+      <div class="step-body">
+        <div class="step-title" style="color:var(--accent2)">Situation &mdash; le contexte partag&eacute;</div>
+        <div class="step-text">Ce que tout le monde sait et accepte comme vrai. &Eacute;tablissez le terrain commun. Court, factuel, non-contestable.<br><span style="color:var(--accent2);font-family:var(--font-mono);font-size:.78rem">&rarr; &laquo;Notre CA mensuel est stable depuis 6 mois autour de 500K&euro;.&raquo;</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="border-color:var(--accent3);color:var(--accent3)">C</div>
+      <div class="step-body">
+        <div class="step-title" style="color:var(--accent3)">Complication &mdash; ce qui change ou pose probl&egrave;me</div>
+        <div class="step-text">L&apos;&eacute;v&eacute;nement ou le probl&egrave;me qui rompt l&apos;&eacute;quilibre et cr&eacute;e le besoin d&apos;agir. C&apos;est la tension de votre histoire.<br><span style="color:var(--accent3);font-family:var(--font-mono);font-size:.78rem">&rarr; &laquo;Mais depuis mars, les clients existants commandent 30% moins souvent &mdash; soit 26K&euro; de manque &agrave; gagner/mois.&raquo;</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="border-color:var(--accent1);color:var(--accent1)">R</div>
+      <div class="step-body">
+        <div class="step-title" style="color:var(--accent1)">R&eacute;solution &mdash; ce que vous recommandez</div>
+        <div class="step-text">La r&eacute;ponse concr&egrave;te &agrave; la complication. Action sp&eacute;cifique, responsable identifi&eacute;, impact estim&eacute;.<br><span style="color:var(--accent1);font-family:var(--font-mono);font-size:.78rem">&rarr; &laquo;Lancer une campagne de r&eacute;activation sur les 1 200 clients inactifs depuis 45 jours : ROI estim&eacute; &agrave; 3,2&times; sur 60 jours.&raquo;</span></div>
+      </div>
+    </div>
+  </div>
+
+  <h2>3. La r&egrave;gle : 1 slide = 1 message</h2>
+  <div class="highlight"><strong>Principe :</strong> Chaque slide doit r&eacute;pondre &agrave; une seule question. Si vous avez besoin de deux titres, vous avez besoin de deux slides. Le titre doit &ecirc;tre l&apos;insight &mdash; pas la description du graphique.</div>
+  <table>
+    <tr><th>&#10060;&nbsp; Titre passif (description)</th><th>&#10003;&nbsp; Titre insight (message)</th></tr>
+    <tr><td><em>Ventes par r&eacute;gion &mdash; 2024</em></td><td><em>La r&eacute;gion Sud sous-performe de 20% malgr&eacute; un budget marketing sup&eacute;rieur</em></td></tr>
+    <tr><td><em>Taux de churn mensuel</em></td><td><em>Le churn a doubl&eacute; en 3 mois &mdash; concentr&eacute; sur les clients &lt; 6 mois</em></td></tr>
+    <tr><td><em>&Eacute;volution du CA</em></td><td><em>La croissance ralentit depuis f&eacute;vrier : +2% MoM vs +12% en moyenne 2023</em></td></tr>
+    <tr><td><em>R&eacute;partition des cat&eacute;gories</em></td><td><em>3 cat&eacute;gories g&eacute;n&egrave;rent 78% du CA &mdash; les 12 autres sont marginales</em></td></tr>
+    <tr><td><em>Taux d&apos;occupation &mdash; juillet</em></td><td><em>Le taux d&apos;occupation chute uniquement sur les r&eacute;servations de derni&egrave;re minute</em></td></tr>
+  </table>
+
+  <h2>4. Structure type d&apos;un rapport / deck</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num" style="border-color:var(--accent1);color:var(--accent1)">01</div>
+      <div class="step-body">
+        <div class="step-title">Executive Summary &mdash; 1 page max</div>
+        <div class="step-text">Le BLUF complet : contexte en 1 phrase, 2&ndash;3 findings cl&eacute;s chiffr&eacute;s, 1&ndash;2 recommandations. Un dirigeant qui lit <em>seulement cette page</em> doit pouvoir prendre une d&eacute;cision.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-body">
+        <div class="step-title">Contexte &amp; p&eacute;rim&egrave;tre</div>
+        <div class="step-text">Objectif de l&apos;analyse, p&eacute;riode couverte, dataset utilis&eacute;, limites &eacute;ventuelles. Donne la confiance dans la m&eacute;thodologie.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-body">
+        <div class="step-title">R&eacute;sultats cl&eacute;s</div>
+        <div class="step-text">2&ndash;4 insights majeurs, un par slide / section. Chaque finding : observation + quantification + comparaison + cause probable.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <div class="step-body">
+        <div class="step-title">Recommandations</div>
+        <div class="step-text">Actions concr&egrave;tes, prioris&eacute;es, avec responsable et impact estim&eacute;. Format : &laquo;Faire [quoi] pour [qui] afin de [impact] d&apos;ici [quand].&raquo;</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="border-color:var(--muted);color:var(--muted)">05</div>
+      <div class="step-body">
+        <div class="step-title" style="color:var(--muted)">Annexes (optionnel)</div>
+        <div class="step-text" style="color:var(--muted)">D&eacute;tail m&eacute;thodologique, tables de donn&eacute;es, graphiques suppl&eacute;mentaires. Pr&eacute;sent si demand&eacute;, jamais impos&eacute;.</div>
+      </div>
+    </div>
+  </div>
+
+  <h2>5. Adapter le message &agrave; l&apos;audience</h2>
+  <table>
+    <tr><th>Audience</th><th>Ce qu&apos;elle veut</th><th>Format id&eacute;al</th><th>Ce qu&apos;elle ne veut pas</th></tr>
+    <tr><td><strong style="color:var(--accent1)">Direction / C-level</strong></td><td>D&eacute;cision &agrave; prendre, impact financier, risque</td><td>3&ndash;5 slides, chiffres grands, 1 recommandation claire</td><td>M&eacute;thodologie, d&eacute;tail technique, trop de graphiques</td></tr>
+    <tr><td><strong style="color:var(--accent2)">Manager op&eacute;rationnel</strong></td><td>Causes, segments, actions concr&egrave;tes</td><td>10&ndash;15 slides, d&eacute;compositions, priorisation</td><td>Jargon statistique, graphiques sans contexte</td></tr>
+    <tr><td><strong style="color:var(--accent4)">&Eacute;quipe technique</strong></td><td>M&eacute;thodologie, qualit&eacute; des donn&eacute;es, reproductibilit&eacute;</td><td>Rapport &eacute;crit, requ&ecirc;tes sources, notes de bas de page</td><td>Simplifications excessives, conclusions sans preuves</td></tr>
+    <tr><td><strong style="color:var(--accent3)">Client / Externe</strong></td><td>Valeur cr&eacute;&eacute;e, storytelling, visuel soign&eacute;</td><td>Deck visuel 5&ndash;10 slides, peu de chiffres, impact m&eacute;tier</td><td>Donn&eacute;es internes sensibles, jargon interne</td></tr>
+  </table>
+
+  <h2>6. Les erreurs classiques &agrave; &eacute;viter</h2>
+  <table>
+    <tr><th>&#10060;&nbsp; Erreur</th><th>Pourquoi c&apos;est probl&eacute;matique</th><th>Ce qu&apos;il faut faire &agrave; la place</th></tr>
+    <tr><td><strong>Le data dump</strong></td><td>Montrer toutes les donn&eacute;es disponibles sans fil directeur</td><td>S&eacute;lectionner 2&ndash;4 findings qui r&eacute;pondent &agrave; la question initiale</td></tr>
+    <tr><td><strong>Trop de slides</strong></td><td>L&apos;audience se noie, le message se perd</td><td>Si &gt; 15 slides : r&eacute;duire ou d&eacute;placer en annexe</td></tr>
+    <tr><td><strong>Titres descriptifs</strong></td><td>&laquo;CA par mois&raquo; ne dit rien &mdash; l&apos;audience doit interpr&eacute;ter seule</td><td>Titres = messages : &laquo;Le CA stagne depuis f&eacute;vrier malgr&eacute; la hausse des leads&raquo;</td></tr>
+    <tr><td><strong>Pas de recommandation</strong></td><td>L&apos;analyse reste th&eacute;orique, personne ne sait quoi faire</td><td>Toujours terminer par : &laquo;Je recommande de&hellip;&raquo; avec une action concr&egrave;te</td></tr>
+    <tr><td><strong>Graphiques illisibles</strong></td><td>Axes sans unit&eacute;, 8 couleurs, l&eacute;gende incompr&eacute;hensible</td><td>1 graphique = 1 comparaison. Annoter directement la courbe.</td></tr>
+    <tr><td><strong>Commencer par la m&eacute;thodologie</strong></td><td>L&apos;audience d&eacute;croche avant les r&eacute;sultats</td><td>M&eacute;thodologie en annexe, r&eacute;sultats d&apos;abord</td></tr>
+  </table>
+</section>
+
+<!-- SQL REF -->
+<section id="sqlref" class="section">
+  <div class="section-header"><div class="section-icon">&#128214;</div><div><div class="section-title">SQL &mdash; R&eacute;f&eacute;rentiel complet</div><div class="section-desc">De SELECT * aux CTEs et Window Functions, du d&eacute;butant &agrave; l&apos;expert</div></div></div>
+  <div class="highlight"><strong>Convention de nommage :</strong> Toutes les requ&ecirc;tes utilisent des noms g&eacute;n&eacute;riques color&eacute;s selon leur type. Remplacez-les par vos vraies colonnes.</div>
+  <div class="col-legend">
+    <div class="col-legend-item"><div class="col-legend-dot" style="background:#a78bfa"></div><code style="color:#a78bfa">id / id_fk</code> &mdash; cl&eacute; primaire / &eacute;trang&egrave;re</div>
+    <div class="col-legend-item"><div class="col-legend-dot" style="background:#f0c040"></div><code style="color:#f0c040">col_num_1</code> &mdash; valeur num&eacute;rique (montant, quantit&eacute;, prix&hellip;)</div>
+    <div class="col-legend-item"><div class="col-legend-dot" style="background:#5eead4"></div><code style="color:#5eead4">col_cat_1</code> &mdash; cat&eacute;gorie / texte (pays, type, statut&hellip;)</div>
+    <div class="col-legend-item"><div class="col-legend-dot" style="background:#f87171"></div><code style="color:#f87171">col_date_1</code> &mdash; date ou datetime</div>
+  </div>
+
+  <div class="level-bar"><span class="level-bar-label">NIVEAU</span><div class="level-pip g"></div><div class="level-pip"></div><div class="level-pip"></div><div class="level-pip"></div><span class="level-bar-text" style="color:#86efac">D&Eacute;BUTANT</span></div>
+
+  <div class="sql-concept">1 &mdash; Lire toute une table</div>
+  <div class="code-block" data-level="DEBUTANT"><span class="kw">SELECT</span> *<br><span class="kw">FROM</span> table_1;</div>
+
+  <div class="sql-concept">2 &mdash; S&eacute;lectionner des colonnes pr&eacute;cises</div>
+  <div class="code-block" data-level="DEBUTANT"><span class="kw">SELECT</span> <span class="ci">id</span>, <span class="cc">col_cat_1</span>, <span class="cn">col_num_1</span>, <span class="cd">col_date_1</span><br><span class="kw">FROM</span> table_1;</div>
+
+  <div class="sql-concept">3 &mdash; Alias (renommer)</div>
+  <div class="code-block" data-level="DEBUTANT"><span class="kw">SELECT</span><br>  <span class="cc">col_cat_1</span> <span class="kw">AS</span> categorie,<br>  <span class="cn">col_num_1</span> <span class="kw">AS</span> montant<br><span class="kw">FROM</span> table_1;</div>
+
+  <div class="sql-concept">4 &mdash; Filtrer les lignes (WHERE)</div>
+  <div class="code-block" data-level="DEBUTANT">
+<span class="cm">-- Egalite sur une categorie</span><br>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> table_1 <span class="kw">WHERE</span> <span class="cc">col_cat_1</span> = <span class="str">'valeur'</span>;<br><br>
+<span class="cm">-- Comparaison numerique</span><br>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> table_1 <span class="kw">WHERE</span> <span class="cn">col_num_1</span> &gt; <span class="num">100</span>;<br><br>
+<span class="cm">-- ET / OU</span><br>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> table_1<br>
+<span class="kw">WHERE</span> <span class="cc">col_cat_1</span> = <span class="str">'A'</span> <span class="kw">AND</span> <span class="cn">col_num_1</span> &gt; <span class="num">50</span>;<br><br>
+<span class="cm">-- Liste de valeurs</span><br>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> table_1<br>
+<span class="kw">WHERE</span> <span class="cc">col_cat_1</span> <span class="kw">IN</span> (<span class="str">'val1'</span>, <span class="str">'val2'</span>, <span class="str">'val3'</span>);<br><br>
+<span class="cm">-- Plage numerique</span><br>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> table_1<br>
+<span class="kw">WHERE</span> <span class="cn">col_num_1</span> <span class="kw">BETWEEN</span> <span class="num">10</span> <span class="kw">AND</span> <span class="num">100</span>;<br><br>
+<span class="cm">-- Recherche texte partiel (% = n'importe quels caracteres)</span><br>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> table_1<br>
+<span class="kw">WHERE</span> <span class="cc">col_cat_1</span> <span class="kw">LIKE</span> <span class="str">'%mot%'</span>;
+  </div>
+
+  <div class="sql-concept">5 &mdash; Trier (ORDER BY)</div>
+  <div class="code-block" data-level="DEBUTANT">
+<span class="cm">-- Croissant (defaut)</span><br>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> table_1 <span class="kw">ORDER BY</span> <span class="cn">col_num_1</span> <span class="kw">ASC</span>;<br><br>
+<span class="cm">-- Decroissant</span><br>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> table_1 <span class="kw">ORDER BY</span> <span class="cn">col_num_1</span> <span class="kw">DESC</span>;<br><br>
+<span class="cm">-- Plusieurs colonnes</span><br>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> table_1 <span class="kw">ORDER BY</span> <span class="cc">col_cat_1</span> <span class="kw">ASC</span>, <span class="cn">col_num_1</span> <span class="kw">DESC</span>;
+  </div>
+
+  <div class="sql-concept">6 &mdash; Limiter les resultats</div>
+  <div class="code-block" data-level="DEBUTANT">
+<span class="cm">-- SQL Server / T-SQL</span><br>
+<span class="kw">SELECT TOP</span> <span class="num">10</span> * <span class="kw">FROM</span> table_1 <span class="kw">ORDER BY</span> <span class="cn">col_num_1</span> <span class="kw">DESC</span>;<br><br>
+<span class="cm">-- MySQL / PostgreSQL</span><br>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> table_1 <span class="kw">ORDER BY</span> <span class="cn">col_num_1</span> <span class="kw">DESC</span> <span class="kw">LIMIT</span> <span class="num">10</span>;
+  </div>
+
+  <div class="sql-concept">7 &mdash; Valeurs distinctes (DISTINCT)</div>
+  <div class="code-block" data-level="DEBUTANT">
+<span class="cm">-- Lister toutes les categories uniques</span><br>
+<span class="kw">SELECT DISTINCT</span> <span class="cc">col_cat_1</span> <span class="kw">FROM</span> table_1;<br><br>
+<span class="cm">-- Compter les valeurs distinctes</span><br>
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> <span class="cc">col_cat_1</span>) <span class="kw">AS</span> nb_unique <span class="kw">FROM</span> table_1;
+  </div>
+
+  <div class="level-bar"><span class="level-bar-label">NIVEAU</span><div class="level-pip g"></div><div class="level-pip y"></div><div class="level-pip"></div><div class="level-pip"></div><span class="level-bar-text" style="color:var(--accent1)">INTERM&Eacute;DIAIRE</span></div>
+
+  <div class="sql-concept">8 &mdash; Agregations (GROUP BY)</div>
+  <div class="code-block" data-level="INTERMEDIAIRE">
+<span class="kw">SELECT</span><br>
+  <span class="cc">col_cat_1</span>,<br>
+  <span class="fn">COUNT</span>(*)           <span class="kw">AS</span> nb,<br>
+  <span class="fn">SUM</span>(<span class="cn">col_num_1</span>)    <span class="kw">AS</span> total,<br>
+  <span class="fn">AVG</span>(<span class="cn">col_num_1</span>)    <span class="kw">AS</span> moyenne,<br>
+  <span class="fn">MIN</span>(<span class="cn">col_num_1</span>)    <span class="kw">AS</span> minimum,<br>
+  <span class="fn">MAX</span>(<span class="cn">col_num_1</span>)    <span class="kw">AS</span> maximum<br>
+<span class="kw">FROM</span> table_1<br>
+<span class="kw">GROUP BY</span> <span class="cc">col_cat_1</span><br>
+<span class="kw">ORDER BY</span> total <span class="kw">DESC</span>;
+  </div>
+
+  <div class="sql-concept">9 &mdash; Filtrer apres agregation (HAVING)</div>
+  <div class="code-block" data-level="INTERMEDIAIRE">
+<span class="cm">-- WHERE filtre les lignes AVANT agregation</span><br>
+<span class="cm">-- HAVING filtre les groupes APRES agregation</span><br>
+<span class="kw">SELECT</span> <span class="cc">col_cat_1</span>, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> nb<br>
+<span class="kw">FROM</span> table_1<br>
+<span class="kw">WHERE</span> <span class="cn">col_num_1</span> &gt; <span class="num">0</span>       <span class="cm">-- filtre lignes d'abord</span><br>
+<span class="kw">GROUP BY</span> <span class="cc">col_cat_1</span><br>
+<span class="kw">HAVING</span> <span class="fn">COUNT</span>(*) &gt;= <span class="num">5</span>;     <span class="cm">-- filtre groupes ensuite</span>
+  </div>
+
+  <div class="sql-concept">10 &mdash; Jointures (JOIN)</div>
+  <div class="code-block" data-level="INTERMEDIAIRE">
+<span class="cm">-- INNER JOIN : seulement les correspondances dans les 2 tables</span><br>
+<span class="kw">SELECT</span> t1.<span class="cc">col_cat_1</span>, t2.<span class="cn">col_num_1</span><br>
+<span class="kw">FROM</span> table_1 t1<br>
+<span class="kw">INNER JOIN</span> table_2 t2 <span class="kw">ON</span> t1.<span class="ci">id</span> = t2.<span class="ci">id_fk</span>;<br><br>
+<span class="cm">-- LEFT JOIN : toutes les lignes de table_1, meme sans correspondance</span><br>
+<span class="kw">SELECT</span> t1.<span class="cc">col_cat_1</span>, t2.<span class="cn">col_num_1</span><br>
+<span class="kw">FROM</span> table_1 t1<br>
+<span class="kw">LEFT JOIN</span> table_2 t2 <span class="kw">ON</span> t1.<span class="ci">id</span> = t2.<span class="ci">id_fk</span>;<br><br>
+<span class="cm">-- Jointure sur 3 tables</span><br>
+<span class="kw">SELECT</span> t1.<span class="cc">col_cat_1</span>, t2.<span class="cn">col_num_1</span>, t3.<span class="cc">col_cat_2</span><br>
+<span class="kw">FROM</span> table_1 t1<br>
+<span class="kw">JOIN</span> table_2 t2 <span class="kw">ON</span> t1.<span class="ci">id</span> = t2.<span class="ci">fk_1</span><br>
+<span class="kw">JOIN</span> table_3 t3 <span class="kw">ON</span> t2.<span class="ci">id</span> = t3.<span class="ci">fk_2</span>;
+  </div>
+
+  <div class="sql-concept">11 &mdash; Logique conditionnelle (CASE WHEN)</div>
+  <div class="code-block" data-level="INTERMEDIAIRE">
+<span class="cm">-- Segmenter une valeur numerique en categories</span><br>
+<span class="kw">SELECT</span><br>
+  <span class="cc">col_cat_1</span>, <span class="cn">col_num_1</span>,<br>
+  <span class="kw">CASE</span><br>
+    <span class="kw">WHEN</span> <span class="cn">col_num_1</span> &gt;= <span class="num">100</span> <span class="kw">THEN</span> <span class="str">'Eleve'</span><br>
+    <span class="kw">WHEN</span> <span class="cn">col_num_1</span> &gt;= <span class="num">50</span>  <span class="kw">THEN</span> <span class="str">'Moyen'</span><br>
+    <span class="kw">ELSE</span>                       <span class="str">'Faible'</span><br>
+  <span class="kw">END</span> <span class="kw">AS</span> segment<br>
+<span class="kw">FROM</span> table_1;<br><br>
+<span class="cm">-- Compter conditionnellement (pattern courant)</span><br>
+<span class="kw">SELECT</span><br>
+  <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> <span class="cc">col_cat_1</span> = <span class="str">'A'</span> <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">ELSE</span> <span class="num">0</span> <span class="kw">END</span>) <span class="kw">AS</span> nb_A,<br>
+  <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> <span class="cc">col_cat_1</span> = <span class="str">'B'</span> <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">ELSE</span> <span class="num">0</span> <span class="kw">END</span>) <span class="kw">AS</span> nb_B<br>
+<span class="kw">FROM</span> table_1;
+  </div>
+
+  <div class="sql-concept">12 &mdash; Sous-requetes (Subqueries)</div>
+  <div class="code-block" data-level="INTERMEDIAIRE">
+<span class="cm">-- Dans le WHERE : garder les lignes au-dessus de la moyenne</span><br>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> table_1<br>
+<span class="kw">WHERE</span> <span class="cn">col_num_1</span> &gt; (<br>
+  <span class="kw">SELECT</span> <span class="fn">AVG</span>(<span class="cn">col_num_1</span>) <span class="kw">FROM</span> table_1<br>
+);<br><br>
+<span class="cm">-- Dans le FROM : resultat intermediaire comme table</span><br>
+<span class="kw">SELECT</span> sub.<span class="cc">col_cat_1</span>, sub.total<br>
+<span class="kw">FROM</span> (<br>
+  <span class="kw">SELECT</span> <span class="cc">col_cat_1</span>, <span class="fn">SUM</span>(<span class="cn">col_num_1</span>) <span class="kw">AS</span> total<br>
+  <span class="kw">FROM</span> table_1 <span class="kw">GROUP BY</span> <span class="cc">col_cat_1</span><br>
+) <span class="kw">AS</span> sub<br>
+<span class="kw">WHERE</span> sub.total &gt; <span class="num">500</span>;
+  </div>
+
+  <div class="sql-concept">13 &mdash; Manipuler les dates</div>
+  <div class="code-block" data-level="INTERMEDIAIRE">
+<span class="cm">-- Extraire annee, mois, jour (SQL Server)</span><br>
+<span class="kw">SELECT</span><br>
+  <span class="fn">YEAR</span>(<span class="cd">col_date_1</span>)  <span class="kw">AS</span> annee,<br>
+  <span class="fn">MONTH</span>(<span class="cd">col_date_1</span>) <span class="kw">AS</span> mois,<br>
+  <span class="fn">DAY</span>(<span class="cd">col_date_1</span>)   <span class="kw">AS</span> jour<br>
+<span class="kw">FROM</span> table_1;<br><br>
+<span class="cm">-- Grouper par mois</span><br>
+<span class="kw">SELECT</span><br>
+  <span class="fn">FORMAT</span>(<span class="cd">col_date_1</span>, <span class="str">'yyyy-MM'</span>) <span class="kw">AS</span> annee_mois,<br>
+  <span class="fn">SUM</span>(<span class="cn">col_num_1</span>) <span class="kw">AS</span> total<br>
+<span class="kw">FROM</span> table_1<br>
+<span class="kw">GROUP BY</span> <span class="fn">FORMAT</span>(<span class="cd">col_date_1</span>, <span class="str">'yyyy-MM'</span>)<br>
+<span class="kw">ORDER BY</span> annee_mois;<br><br>
+<span class="cm">-- Difference en jours</span><br>
+<span class="kw">SELECT</span> <span class="fn">DATEDIFF</span>(<span class="kw">day</span>, <span class="cd">col_date_1</span>, <span class="cd">col_date_2</span>) <span class="kw">AS</span> nb_jours <span class="kw">FROM</span> table_1;<br><br>
+<span class="cm">-- Filtrer sur une periode</span><br>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> table_1<br>
+<span class="kw">WHERE</span> <span class="cd">col_date_1</span> <span class="kw">BETWEEN</span> <span class="str">'2023-01-01'</span> <span class="kw">AND</span> <span class="str">'2023-12-31'</span>;
+  </div>
+
+  <div class="sql-concept">14 &mdash; Combiner des requetes (UNION)</div>
+  <div class="code-block" data-level="INTERMEDIAIRE">
+<span class="cm">-- UNION ALL : empile (garde les doublons)</span><br>
+<span class="kw">SELECT</span> <span class="cc">col_cat_1</span>, <span class="cn">col_num_1</span> <span class="kw">FROM</span> table_1<br>
+<span class="kw">UNION ALL</span><br>
+<span class="kw">SELECT</span> <span class="cc">col_cat_1</span>, <span class="cn">col_num_1</span> <span class="kw">FROM</span> table_2;<br><br>
+<span class="cm">-- UNION : empile et supprime les doublons</span><br>
+<span class="kw">SELECT</span> <span class="cc">col_cat_1</span> <span class="kw">FROM</span> table_1<br>
+<span class="kw">UNION</span><br>
+<span class="kw">SELECT</span> <span class="cc">col_cat_1</span> <span class="kw">FROM</span> table_2;
+  </div>
+
+  <div class="level-bar"><span class="level-bar-label">NIVEAU</span><div class="level-pip g"></div><div class="level-pip y"></div><div class="level-pip p"></div><div class="level-pip"></div><span class="level-bar-text" style="color:var(--accent4)">AVANC&Eacute;</span></div>
+
+  <div class="sql-concept">15 &mdash; CTE (Common Table Expressions)</div>
+  <div class="code-block" data-level="AVANCE">
+<span class="cm">-- Un CTE = table temporaire nommee, valable le temps de la requete</span><br>
+<span class="cm">-- Bien plus lisible qu'une sous-requete imbriquee</span><br><br>
+<span class="kw">WITH</span> cte_totaux <span class="kw">AS</span> (<br>
+  <span class="kw">SELECT</span><br>
+    <span class="cc">col_cat_1</span>,<br>
+    <span class="fn">SUM</span>(<span class="cn">col_num_1</span>) <span class="kw">AS</span> total<br>
+  <span class="kw">FROM</span> table_1<br>
+  <span class="kw">GROUP BY</span> <span class="cc">col_cat_1</span><br>
+)<br>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> cte_totaux<br>
+<span class="kw">WHERE</span> total &gt; <span class="num">1000</span><br>
+<span class="kw">ORDER BY</span> total <span class="kw">DESC</span>;<br><br>
+<span class="cm">-- Chainer plusieurs CTEs</span><br>
+<span class="kw">WITH</span><br>
+cte_1 <span class="kw">AS</span> (<br>
+  <span class="kw">SELECT</span> <span class="cc">col_cat_1</span>, <span class="fn">SUM</span>(<span class="cn">col_num_1</span>) <span class="kw">AS</span> total<br>
+  <span class="kw">FROM</span> table_1 <span class="kw">GROUP BY</span> <span class="cc">col_cat_1</span><br>
+),<br>
+cte_2 <span class="kw">AS</span> (<br>
+  <span class="kw">SELECT</span> <span class="cc">col_cat_1</span>, <span class="fn">AVG</span>(<span class="cn">col_num_2</span>) <span class="kw">AS</span> moyenne<br>
+  <span class="kw">FROM</span> table_2 <span class="kw">GROUP BY</span> <span class="cc">col_cat_1</span><br>
+)<br>
+<span class="kw">SELECT</span> c1.<span class="cc">col_cat_1</span>, c1.total, c2.moyenne<br>
+<span class="kw">FROM</span> cte_1 c1<br>
+<span class="kw">JOIN</span> cte_2 c2 <span class="kw">ON</span> c1.<span class="cc">col_cat_1</span> = c2.<span class="cc">col_cat_1</span>;
+  </div>
+
+  <div class="sql-concept">16 &mdash; Window Functions &mdash; Rang et numerotation</div>
+  <div class="code-block" data-level="AVANCE">
+<span class="cm">-- ROW_NUMBER : numero unique par ligne</span><br>
+<span class="kw">SELECT</span> <span class="cc">col_cat_1</span>, <span class="cn">col_num_1</span>,<br>
+  <span class="fn">ROW_NUMBER</span>() <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> <span class="cn">col_num_1</span> <span class="kw">DESC</span>) <span class="kw">AS</span> num_ligne<br>
+<span class="kw">FROM</span> table_1;<br><br>
+<span class="cm">-- RANK : ex-aequo saute des numeros (1, 2, 2, 4)</span><br>
+<span class="cm">-- DENSE_RANK : ex-aequo ne saute pas   (1, 2, 2, 3)</span><br>
+<span class="kw">SELECT</span> <span class="cc">col_cat_1</span>, <span class="cn">col_num_1</span>,<br>
+  <span class="fn">RANK</span>()       <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> <span class="cn">col_num_1</span> <span class="kw">DESC</span>) <span class="kw">AS</span> rang,<br>
+  <span class="fn">DENSE_RANK</span>() <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> <span class="cn">col_num_1</span> <span class="kw">DESC</span>) <span class="kw">AS</span> dense_rang<br>
+<span class="kw">FROM</span> table_1;<br><br>
+<span class="cm">-- PARTITION BY : top 3 par categorie</span><br>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> (<br>
+  <span class="kw">SELECT</span> <span class="cc">col_cat_1</span>, <span class="cc">col_cat_2</span>, <span class="cn">col_num_1</span>,<br>
+    <span class="fn">RANK</span>() <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> <span class="cc">col_cat_1</span> <span class="kw">ORDER BY</span> <span class="cn">col_num_1</span> <span class="kw">DESC</span>) <span class="kw">AS</span> rang<br>
+  <span class="kw">FROM</span> table_1<br>
+) ranked<br>
+<span class="kw">WHERE</span> rang &lt;= <span class="num">3</span>;
+  </div>
+
+  <div class="sql-concept">17 &mdash; Window Functions &mdash; Calculs glissants</div>
+  <div class="code-block" data-level="AVANCE">
+<span class="cm">-- Cumul progressif (running total)</span><br>
+<span class="kw">SELECT</span> <span class="cd">col_date_1</span>, <span class="cn">col_num_1</span>,<br>
+  <span class="fn">SUM</span>(<span class="cn">col_num_1</span>) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> <span class="cd">col_date_1</span>) <span class="kw">AS</span> cumul<br>
+<span class="kw">FROM</span> table_1;<br><br>
+<span class="cm">-- Moyenne glissante sur 3 periodes</span><br>
+<span class="kw">SELECT</span> <span class="cd">col_date_1</span>, <span class="cn">col_num_1</span>,<br>
+  <span class="fn">AVG</span>(<span class="cn">col_num_1</span>) <span class="kw">OVER</span> (<br>
+    <span class="kw">ORDER BY</span> <span class="cd">col_date_1</span><br>
+    <span class="kw">ROWS BETWEEN</span> <span class="num">2</span> <span class="kw">PRECEDING AND CURRENT ROW</span><br>
+  ) <span class="kw">AS</span> moy_glissante_3<br>
+<span class="kw">FROM</span> table_1;<br><br>
+<span class="cm">-- % du total general par ligne</span><br>
+<span class="kw">SELECT</span> <span class="cc">col_cat_1</span>, <span class="cn">col_num_1</span>,<br>
+  <span class="fn">ROUND</span>(<span class="cn">col_num_1</span> * <span class="num">100.0</span> / <span class="fn">SUM</span>(<span class="cn">col_num_1</span>) <span class="kw">OVER</span>(), <span class="num">2</span>) <span class="kw">AS</span> pct_total<br>
+<span class="kw">FROM</span> table_1;
+  </div>
+
+  <div class="sql-concept">18 &mdash; Window Functions &mdash; LAG / LEAD</div>
+  <div class="code-block" data-level="AVANCE">
+<span class="cm">-- LAG : valeur de la ligne PRECEDENTE (N vs N-1)</span><br>
+<span class="kw">SELECT</span><br>
+  <span class="cd">col_date_1</span>,<br>
+  <span class="cn">col_num_1</span>                                                      <span class="kw">AS</span> valeur_actuelle,<br>
+  <span class="fn">LAG</span>(<span class="cn">col_num_1</span>) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> <span class="cd">col_date_1</span>)                    <span class="kw">AS</span> valeur_precedente,<br>
+  <span class="cn">col_num_1</span> - <span class="fn">LAG</span>(<span class="cn">col_num_1</span>) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> <span class="cd">col_date_1</span>)        <span class="kw">AS</span> variation<br>
+<span class="kw">FROM</span> table_1;<br><br>
+<span class="cm">-- LEAD : valeur de la ligne SUIVANTE</span><br>
+<span class="kw">SELECT</span> <span class="cd">col_date_1</span>, <span class="cn">col_num_1</span>,<br>
+  <span class="fn">LEAD</span>(<span class="cn">col_num_1</span>) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> <span class="cd">col_date_1</span>) <span class="kw">AS</span> valeur_suivante<br>
+<span class="kw">FROM</span> table_1;
+  </div>
+
+  <div class="level-bar"><span class="level-bar-label">NIVEAU</span><div class="level-pip g"></div><div class="level-pip y"></div><div class="level-pip p"></div><div class="level-pip r"></div><span class="level-bar-text" style="color:var(--accent3)">EXPERT</span></div>
+
+  <div class="sql-concept">19 &mdash; CTE recursifs (hierarchies)</div>
+  <div class="code-block" data-level="EXPERT">
+<span class="cm">-- Utile pour structures parent/enfant : org chart, categories...</span><br>
+<span class="cm">-- ⚠ Syntaxe PostgreSQL / MySQL — sur SQL Server (T-SQL) : remplacer WITH RECURSIVE par WITH</span><br>
+<span class="kw">WITH RECURSIVE</span> hierarchie <span class="kw">AS</span> (<br>
+  <span class="cm">-- Ancre : racines sans parent</span><br>
+  <span class="kw">SELECT</span> <span class="ci">id</span>, <span class="cc">col_cat_1</span>, <span class="ci">parent_id</span>, <span class="num">0</span> <span class="kw">AS</span> niveau<br>
+  <span class="kw">FROM</span> table_1 <span class="kw">WHERE</span> <span class="ci">parent_id</span> <span class="kw">IS NULL</span><br><br>
+  <span class="kw">UNION ALL</span><br><br>
+  <span class="cm">-- Recursion : enfants de chaque noeud</span><br>
+  <span class="kw">SELECT</span> t.<span class="ci">id</span>, t.<span class="cc">col_cat_1</span>, t.<span class="ci">parent_id</span>, h.niveau + <span class="num">1</span><br>
+  <span class="kw">FROM</span> table_1 t<br>
+  <span class="kw">JOIN</span> hierarchie h <span class="kw">ON</span> t.<span class="ci">parent_id</span> = h.<span class="ci">id</span><br>
+)<br>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> hierarchie <span class="kw">ORDER BY</span> niveau;
+  </div>
+
+  <div class="sql-concept">20 &mdash; PIVOT : lignes en colonnes (SQL Server)</div>
+  <div class="code-block" data-level="EXPERT">
+<span class="cm">-- Transformer : (col_cat_1, annee, col_num_1) => une colonne par annee</span><br>
+<span class="kw">SELECT</span> <span class="cc">col_cat_1</span>, [<span class="num">2022</span>], [<span class="num">2023</span>], [<span class="num">2024</span>]<br>
+<span class="kw">FROM</span> (<br>
+  <span class="kw">SELECT</span> <span class="cc">col_cat_1</span>, <span class="fn">YEAR</span>(<span class="cd">col_date_1</span>) <span class="kw">AS</span> annee, <span class="cn">col_num_1</span><br>
+  <span class="kw">FROM</span> table_1<br>
+) src<br>
+<span class="kw">PIVOT</span> (<br>
+  <span class="fn">SUM</span>(<span class="cn">col_num_1</span>) <span class="kw">FOR</span> annee <span class="kw">IN</span> ([<span class="num">2022</span>], [<span class="num">2023</span>], [<span class="num">2024</span>])<br>
+) piv;
+  </div>
+
+  <div class="sql-concept">21 &mdash; Requete analytique complete (CTE + Window + agregation)</div>
+  <div class="code-block" data-level="EXPERT">
+<span class="cm">-- Classement mensuel avec variation N vs N-1 et part du total</span><br>
+<span class="kw">WITH</span><br>
+agregats <span class="kw">AS</span> (<br>
+  <span class="kw">SELECT</span><br>
+    <span class="cc">col_cat_1</span>,<br>
+    <span class="fn">FORMAT</span>(<span class="cd">col_date_1</span>, <span class="str">'yyyy-MM'</span>) <span class="kw">AS</span> mois,<br>
+    <span class="fn">SUM</span>(<span class="cn">col_num_1</span>) <span class="kw">AS</span> total<br>
+  <span class="kw">FROM</span> table_1<br>
+  <span class="kw">WHERE</span> <span class="cc">col_cat_2</span> <span class="kw">IS NOT NULL</span><br>
+  <span class="kw">GROUP BY</span> <span class="cc">col_cat_1</span>, <span class="fn">FORMAT</span>(<span class="cd">col_date_1</span>, <span class="str">'yyyy-MM'</span>)<br>
+),<br>
+avec_calculs <span class="kw">AS</span> (<br>
+  <span class="kw">SELECT</span><br>
+    <span class="cc">col_cat_1</span>, mois, total,<br>
+    <span class="fn">LAG</span>(total)  <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> <span class="cc">col_cat_1</span> <span class="kw">ORDER BY</span> mois) <span class="kw">AS</span> total_precedent,<br>
+    <span class="fn">SUM</span>(total)  <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> mois)                       <span class="kw">AS</span> total_global<br>
+  <span class="kw">FROM</span> agregats<br>
+)<br>
+<span class="kw">SELECT</span><br>
+  <span class="cc">col_cat_1</span>, mois, total,<br>
+  <span class="fn">ROUND</span>((total - total_precedent) * <span class="num">100.0</span> / <span class="fn">NULLIF</span>(total_precedent,<span class="num">0</span>), <span class="num">1</span>) <span class="kw">AS</span> var_pct,<br>
+  <span class="fn">ROUND</span>(total * <span class="num">100.0</span> / total_global, <span class="num">1</span>)                               <span class="kw">AS</span> part_pct,<br>
+  <span class="fn">RANK</span>() <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> mois <span class="kw">ORDER BY</span> total <span class="kw">DESC</span>)               <span class="kw">AS</span> rang_mois<br>
+<span class="kw">FROM</span> avec_calculs<br>
+<span class="kw">ORDER BY</span> mois, rang_mois;
+  </div>
+
+  <div class="tip"><strong>&#128161; Conseils :</strong> Niveaux 1-2 = 80% des besoins quotidiens en junior. Les CTEs (niveau 3) sont votre prochain objectif. Les window functions vous feront sortir du lot en entretien.</div>
+</section>
+
+<section id="excel" class="section">
+  <div class="section-header"><div class="section-icon">&#128217;</div><div><div class="section-title">Excel &mdash; Formules essentielles</div><div class="section-desc">Les fonctions indispensables pour l&apos;analyse</div></div></div>
+  <h2>Agr&eacute;gation conditionnelle</h2>
+  <table>
+    <tr><th>Formule</th><th>Usage</th><th>Exemple</th></tr>
+    <tr><td><code>SOMME.SI</code></td><td>Additionner selon 1 crit&egrave;re</td><td><code>=SOMME.SI(A:A,"France",B:B)</code></td></tr>
+    <tr><td><code>SOMME.SI.ENS</code></td><td>Additionner selon N crit&egrave;res</td><td><code>=SOMME.SI.ENS(montant,pays,"FR",statut,"actif")</code></td></tr>
+    <tr><td><code>NB.SI</code></td><td>Compter selon 1 crit&egrave;re</td><td><code>=NB.SI(A:A,"annul&eacute;")</code></td></tr>
+    <tr><td><code>MOYENNE.SI</code></td><td>Moyenne conditionnelle</td><td><code>=MOYENNE.SI(type,"deluxe",prix)</code></td></tr>
+  </table>
+  <h2>Recherche</h2>
+  <table>
+    <tr><th>Formule</th><th>Usage</th></tr>
+    <tr><td><code>RECHERCHEX</code></td><td>Jointure entre tableaux &mdash; remplace VLOOKUP</td></tr>
+    <tr><td><code>INDEX + EQUIV</code></td><td>Recherche bidirectionnelle</td></tr>
+  </table>
+  <h2>Tableaux crois&eacute;s dynamiques (TCD)</h2>
+  <ol style="padding-left:20px;color:var(--muted);font-size:.9rem;line-height:2.2;">
+    <li>S&eacute;lectionnez votre tableau &rarr; Insertion &gt; Tableau crois&eacute; dynamique</li>
+    <li>Glissez une dimension dans &laquo;Lignes&raquo;</li>
+    <li>Glissez une m&eacute;trique dans &laquo;Valeurs&raquo; &rarr; Somme</li>
+    <li>Ajoutez un filtre ou colonne pour affiner</li>
+    <li>Triez par valeur d&eacute;croissante</li>
+  </ol>
+  <div class="tip"><strong>&#128161; Raccourci :</strong> Alt + N + V pour ins&eacute;rer un TCD imm&eacute;diatement.</div>
+  <h2>Statistiques</h2>
+  <div class="code-block"><span class="fn">MOYENNE</span>(plage) &middot; <span class="fn">MEDIANE</span>(plage) &middot; <span class="fn">ECARTYPE</span>(plage)<br>
+<span class="fn">CENTILE</span>(plage, 0.75)    <span class="cm">-&gt; 75e percentile</span><br>
+<span class="fn">GRANDE.VALEUR</span>(plage,1)  <span class="cm">-&gt; maximum</span><br>
+<span class="fn">CORREL</span>(plage1, plage2)   <span class="cm">-&gt; correlation</span></div>
+</section>
+
+<section id="visualisation" class="section">
+  <div class="section-header"><div class="section-icon">&#128202;</div><div><div class="section-title">Visualisation &amp; Dashboards</div><div class="section-desc">Choisir le bon graphique et construire des visuels clairs &mdash; Power BI, Tableau, Looker ou autre</div></div></div>
+  <div class="highlight"><strong>Principe fondamental :</strong> Un graphique ne montre pas des donn&eacute;es &mdash; il r&eacute;pond &agrave; une question. Avant de cr&eacute;er un visuel, demandez-vous : <em>quelle comparaison est-ce que je veux que l&apos;audience voie ?</em></div>
+  <div class="tip"><strong>&#128161; Le workflow professionnel &mdash; SQL &rarr; VIEW &rarr; Viz :</strong> Plut&ocirc;t que de connecter votre outil de visualisation directement &agrave; une table brute, pr&eacute;parez et nettoyez vos donn&eacute;es en SQL, puis sauvegardez le r&eacute;sultat en <strong>VIEW</strong>. Votre outil n&apos;a plus qu&apos;&agrave; lire cette view propre et pr&ecirc;te. C&apos;est plus simple, reproductible, et nettement plus r&eacute;pandu en entreprise.<br><br>
+  <code style="font-family:var(--font-mono);font-size:.82rem;color:var(--accent2)">CREATE VIEW vue_ventes_propres AS<br>
+  SELECT id, col_cat_1, SUM(col_num_1) AS ca, FORMAT(col_date_1, 'yyyy-MM') AS mois<br>
+  FROM table_1 WHERE col_num_1 &gt; 0<br>
+  GROUP BY id, col_cat_1, FORMAT(col_date_1, 'yyyy-MM');</code><br><br>
+  Ensuite dans Power BI / Tableau / Looker : connectez-vous &agrave; <code style="color:var(--accent2)">vue_ventes_propres</code> &mdash; c&apos;est tout.</div>
+
+  <h2>1. Choisir le bon graphique</h2>
+  <table>
+    <tr><th>Objectif</th><th>Graphique recommand&eacute;</th><th>&Agrave; &eacute;viter</th></tr>
+    <tr><td><strong style="color:var(--accent1)">&Eacute;volution dans le temps</strong></td><td>Courbe (Line chart)</td><td>Barres si &gt; 12 p&eacute;riodes</td></tr>
+    <tr><td><strong style="color:var(--accent1)">Comparer des cat&eacute;gories</strong></td><td>Barres horizontales (Bar chart)</td><td>Camembert, 3D</td></tr>
+    <tr><td><strong style="color:var(--accent1)">&Eacute;volution + comparaison</strong></td><td>Barres group&eacute;es ou empi&eacute;l&eacute;es</td><td>Trop de s&eacute;ries (&gt; 4)</td></tr>
+    <tr><td><strong style="color:var(--accent2)">R&eacute;partition proportionnelle</strong></td><td>Donut / Anneau (&le; 5 segments)</td><td>Camembert &gt; 5 segments</td></tr>
+    <tr><td><strong style="color:var(--accent2)">Distribution d&apos;une variable</strong></td><td>Histogramme</td><td>Courbe (donn&eacute;es discr&egrave;tes)</td></tr>
+    <tr><td><strong style="color:var(--accent4)">Corr&eacute;lation 2 variables</strong></td><td>Nuage de points (Scatter plot)</td><td>Barres (masque la relation)</td></tr>
+    <tr><td><strong style="color:var(--accent4)">Composition &amp; hi&eacute;rarchie</strong></td><td>Treemap</td><td>Tableau (difficile visuellement)</td></tr>
+    <tr><td><strong style="color:var(--accent3)">KPI unique</strong></td><td>Carte / KPI tile + variation %</td><td>Graphique (trop complexe)</td></tr>
+    <tr><td><strong style="color:var(--accent3)">Donn&eacute;es g&eacute;ographiques</strong></td><td>Carte choropl&egrave;the (Map)</td><td>Barres si &gt; 10 zones</td></tr>
+  </table>
+
+  <h2>2. Les r&egrave;gles d&apos;un graphique efficace</h2>
+  <div class="cards">
+    <div class="card" style="border-color:var(--accent1)">
+      <div class="card-icon">&#128196;</div>
+      <div class="card-title" style="color:var(--accent1)">Titre = le message</div>
+      <div class="card-text">Le titre doit &ecirc;tre l&apos;insight, pas la description. &laquo;CA par r&eacute;gion&raquo; &rarr; &laquo;La r&eacute;gion Sud sous-performe de 20%&raquo;.</div>
+    </div>
+    <div class="card" style="border-color:var(--accent2)">
+      <div class="card-icon">&#10067;</div>
+      <div class="card-title" style="color:var(--accent2)">1 graphique = 1 question</div>
+      <div class="card-text">Si vous avez besoin de deux titres pour d&eacute;crire un graphique, vous avez besoin de deux graphiques.</div>
+    </div>
+    <div class="card" style="border-color:var(--accent4)">
+      <div class="card-icon">&#127912;</div>
+      <div class="card-title" style="color:var(--accent4)">Couleur = sens</div>
+      <div class="card-text">R&eacute;servez les couleurs pour mettre en valeur. Pas de d&eacute;grad&eacute;, pas de 8 couleurs. Une seule couleur d&apos;accent sur ce qui compte.</div>
+    </div>
+    <div class="card" style="border-color:var(--accent3)">
+      <div class="card-icon">&#128204;</div>
+      <div class="card-title" style="color:var(--accent3)">Annoter directement</div>
+      <div class="card-text">&Eacute;crivez les valeurs cl&eacute;s directement sur la courbe ou la barre. Une l&eacute;gende s&eacute;par&eacute;e oblige le lecteur &agrave; faire le lien seul.</div>
+    </div>
+  </div>
+  <div class="tip"><strong>&#128161; Axe Y :</strong> Pour les graphiques &agrave; barres, l&apos;axe commence toujours &agrave; z&eacute;ro &mdash; sinon vous exag&eacute;rez visuellement les &eacute;carts. Pour les courbes, adapter l&apos;&eacute;chelle est acceptable si clairement indiqu&eacute;.</div>
+
+  <h2>3. Anatomie d&apos;un bon dashboard</h2>
+  <div class="steps">
+    <div class="step"><div class="step-num" style="border-color:var(--accent1);color:var(--accent1)">1</div><div class="step-body"><div class="step-title">En-t&ecirc;te &mdash; KPIs cl&eacute;s</div><div class="step-text">3 &agrave; 5 m&eacute;triques en grand, avec variation vs p&eacute;riode pr&eacute;c&eacute;dente. Compr&eacute;hension en 5 secondes. C&apos;est la zone que tout le monde voit en premier.</div></div></div>
+    <div class="step"><div class="step-num" style="border-color:var(--accent2);color:var(--accent2)">2</div><div class="step-body"><div class="step-title">&Eacute;volution temporelle</div><div class="step-text">Courbe ou barres pour voir les tendances et saisonnalit&eacute;s sur la p&eacute;riode. Ajouter une ligne de r&eacute;f&eacute;rence (objectif ou N&minus;1).</div></div></div>
+    <div class="step"><div class="step-num" style="border-color:var(--accent4);color:var(--accent4)">3</div><div class="step-body"><div class="step-title">D&eacute;composition par dimension</div><div class="step-text">Barres horizontales pour la r&eacute;partition par cat&eacute;gorie (r&eacute;gion, produit, canal...). Toujours tri&eacute; par valeur d&eacute;croissante.</div></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><div class="step-title">Filtres interactifs (Slicers)</div><div class="step-text">P&eacute;riode, segment, r&eacute;gion, type. Les filtres permettent &agrave; l&apos;utilisateur d&apos;explorer sans changer le dashboard. Regroupez-les en haut ou &agrave; gauche.</div></div></div>
+    <div class="step"><div class="step-num" style="border-color:var(--muted);color:var(--muted)">5</div><div class="step-body"><div class="step-title" style="color:var(--muted)">Tableau de d&eacute;tail (optionnel)</div><div class="step-text" style="color:var(--muted)">En bas, pour ceux qui veulent le granulaire. Un tableau avec les lignes cl&eacute;s et la possibilit&eacute; d&apos;exporter. Jamais en premier plan.</div></div></div>
+  </div>
+
+  <h2>4. Erreurs visuelles &agrave; &eacute;viter</h2>
+  <table>
+    <tr><th>&#10060;&nbsp; Erreur</th><th>Pourquoi c&apos;est trompeur</th><th>Correction</th></tr>
+    <tr><td><strong>Axe Y ne commence pas &agrave; 0</strong></td><td>Exag&egrave;re visuellement les &eacute;carts sur les barres &mdash; une hausse de 2% semble &eacute;norme</td><td>Toujours partir de 0 sur les barres. Indiquer clairement si l&apos;&eacute;chelle est tronqu&eacute;e</td></tr>
+    <tr><td><strong>Graphique en 3D</strong></td><td>Distord les proportions &mdash; le segment &agrave; l&apos;avant para&icirc;t plus grand qu&apos;il n&apos;est</td><td>Toujours en 2D. Le 3D n&apos;apporte aucune information suppl&eacute;mentaire</td></tr>
+    <tr><td><strong>Trop de couleurs</strong></td><td>Charge cognitive &eacute;lev&eacute;e, l&apos;audience ne sait pas o&ugrave; regarder</td><td>Gris pour le fond, 1 couleur d&apos;accent pour ce qui compte</td></tr>
+    <tr><td><strong>Double axe Y</strong></td><td>Comparaison visuellement trompeuse selon l&apos;&eacute;chelle choisie</td><td>Deux graphiques s&eacute;par&eacute;s, ou normaliser les deux s&eacute;ries en indice 100</td></tr>
+    <tr><td><strong>Camembert &gt; 5 segments</strong></td><td>Impossible de comparer des angles similaires &mdash; illisible</td><td>Barres horizontales tri&eacute;es, ou regrouper les petits segments en &laquo;Autres&raquo;</td></tr>
+    <tr><td><strong>L&eacute;gende s&eacute;par&eacute;e</strong></td><td>Oblige &agrave; faire des allers-retours entre la l&eacute;gende et le graphique</td><td>Annoter directement les courbes ou barres avec leur label</td></tr>
+  </table>
+
+  <h2>5. &Eacute;quivalences inter-outils</h2>
+  <table>
+    <tr><th>Concept</th><th>Power BI</th><th>Tableau</th><th>Looker</th></tr>
+    <tr><td>M&eacute;trique calcul&eacute;e</td><td>Mesure DAX</td><td>Calculated Field</td><td>Measure (LookML)</td></tr>
+    <tr><td>Filtre interactif</td><td>Slicer</td><td>Filter / Parameter</td><td>Filter</td></tr>
+    <tr><td>Drill-down</td><td>Drill through</td><td>Drill down</td><td>Drill</td></tr>
+    <tr><td>Source de donn&eacute;es</td><td>Power Query</td><td>Data Source</td><td>LookML Model</td></tr>
+    <tr><td>Partage / publication</td><td>Power BI Service</td><td>Tableau Cloud / Server</td><td>Looker Explore</td></tr>
+  </table>
+  <div class="tip"><strong>&#128161; Pour les formules DAX (Power BI) :</strong> La section SQL du guide couvre les m&ecirc;mes logiques d&apos;agr&eacute;gation &mdash; <code>CALCULATE</code> est l&apos;&eacute;quivalent de <code>WHERE</code>, <code>DIVIDE</code> g&egrave;re la division par z&eacute;ro comme <code>NULLIF</code>.</div>
+</section>
+
+<section id="checklist" class="section">
+  <div class="section-header"><div class="section-icon">&#9989;</div><div><div class="section-title">Checklist interactive</div><div class="section-desc">Cliquez pour cocher chaque &eacute;tape de votre analyse</div></div></div>
+  <div style="display:flex;justify-content:flex-end;margin-bottom:16px;"><button onclick="resetChecklist()" style="background:var(--card);border:1px solid var(--border);color:var(--muted);padding:8px 16px;border-radius:8px;cursor:pointer;font-family:var(--font-body);font-size:.85rem;transition:all .2s" onmouseover="this.style.borderColor='var(--accent3)';this.style.color='var(--accent3)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">&#10060; Tout d&eacute;cocher</button></div>
+  <h2>Phase 1 &mdash; Contexte</h2>
+  <ul class="checklist">
+    <li onclick="toggle(this)"><span class="check"></span><span class="check-label">D&eacute;finir l&apos;objectif<span class="check-sub">Quel probl&egrave;me r&eacute;sout-on ? Pour qui ?</span></span></li>
+    <li onclick="toggle(this)"><span class="check"></span><span class="check-label">Formuler 3&ndash;5 questions m&eacute;tier pr&eacute;cises</span></li>
+    <li onclick="toggle(this)"><span class="check"></span><span class="check-label">Identifier la p&eacute;riode et granularit&eacute;</span></li>
+  </ul>
+  <h2>Phase 2 &mdash; Exploration</h2>
+  <ul class="checklist">
+    <li onclick="toggle(this)"><span class="check"></span><span class="check-label">Inventorier les tables et colonnes</span></li>
+    <li onclick="toggle(this)"><span class="check"></span><span class="check-label">V&eacute;rifier le volume (COUNT *)</span></li>
+    <li onclick="toggle(this)"><span class="check"></span><span class="check-label">V&eacute;rifier les types de donn&eacute;es</span></li>
+    <li onclick="toggle(this)"><span class="check"></span><span class="check-label">Identifier la p&eacute;riode couverte (MIN/MAX date)</span></li>
+  </ul>
+  <h2>Phase 3 &mdash; Nettoyage</h2>
+  <ul class="checklist">
+    <li onclick="toggle(this)"><span class="check"></span><span class="check-label">D&eacute;tecter et traiter les NULLs</span></li>
+    <li onclick="toggle(this)"><span class="check"></span><span class="check-label">D&eacute;tecter et traiter les doublons</span></li>
+    <li onclick="toggle(this)"><span class="check"></span><span class="check-label">V&eacute;rifier les valeurs aberrantes</span></li>
+    <li onclick="toggle(this)"><span class="check"></span><span class="check-label">Harmoniser les formats</span></li>
+  </ul>
+  <h2>Phase 4 &mdash; Analyse</h2>
+  <ul class="checklist">
+    <li onclick="toggle(this)"><span class="check"></span><span class="check-label">Calculer les KPIs globaux</span></li>
+    <li onclick="toggle(this)"><span class="check"></span><span class="check-label">Segmenter par dimension cl&eacute;</span></li>
+    <li onclick="toggle(this)"><span class="check"></span><span class="check-label">Analyser l&apos;&eacute;volution temporelle</span></li>
+    <li onclick="toggle(this)"><span class="check"></span><span class="check-label">Identifier 3 insights actionnables</span></li>
+  </ul>
+  <h2>Phase 5 &mdash; Communication</h2>
+  <ul class="checklist">
+    <li onclick="toggle(this)"><span class="check"></span><span class="check-label">Choisir les bons visuels</span></li>
+    <li onclick="toggle(this)"><span class="check"></span><span class="check-label">R&eacute;diger un r&eacute;sum&eacute; ex&eacute;cutif (3-5 phrases)</span></li>
+    <li onclick="toggle(this)"><span class="check"></span><span class="check-label">Formuler des recommandations concr&egrave;tes</span></li>
+  </ul>
+  <div style="margin-top:24px;padding:20px;background:var(--card);border-radius:12px;border:1px solid var(--border);">
+    <div style="font-family:var(--font-head);font-weight:700;margin-bottom:8px;">Progression globale</div>
+    <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+    <div id="progress-label" style="font-family:var(--font-mono);font-size:12px;color:var(--muted);">0 / 18 &eacute;tapes compl&eacute;t&eacute;es</div>
+  </div>
+</section>
+
+</main>
+</div>
+<script>
+function show(id,btn){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');if(btn)btn.classList.add('active');}
+function toggle(el){el.classList.toggle('checked');el.querySelector('.check').innerHTML=el.classList.contains('checked')?'&#10003;':'';updateProgress();}function resetChecklist(){document.querySelectorAll('.checklist li').forEach(li=>{li.classList.remove('checked');li.querySelector('.check').innerHTML='';});updateProgress();}
+function updateProgress(){const all=document.querySelectorAll('.checklist li');const done=document.querySelectorAll('.checklist li.checked');const pct=Math.round(done.length/all.length*100);document.getElementById('progress').style.width=pct+'%';document.getElementById('progress-label').textContent=done.length+' / '+all.length+' etapes completees ('+pct+'%)';if(pct===100)document.getElementById('progress').style.background='var(--accent2)';}
+</script>
+</body>
+</html>
