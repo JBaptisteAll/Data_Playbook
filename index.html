@@ -214,14 +214,14 @@ tr:hover td{background:rgba(255,255,255,.02);color:var(--text)}
 
   <div class="sql-concept">3 &mdash; Profil des colonnes num&eacute;riques</div>
   <div class="code-block" data-level="INTERMEDIAIRE">
-<span class="kw">SELECT</span><br>
-  <span class="fn">COUNT</span>(<span class="cn">col_num_1</span>)                                            <span class="kw">AS</span> nb_valeurs,<br>
-  <span class="fn">COUNT</span>(*) - <span class="fn">COUNT</span>(<span class="cn">col_num_1</span>)                               <span class="kw">AS</span> nb_nulls,<br>
-  <span class="fn">MIN</span>(<span class="cn">col_num_1</span>)                                             <span class="kw">AS</span> minimum,<br>
-  <span class="fn">MAX</span>(<span class="cn">col_num_1</span>)                                             <span class="kw">AS</span> maximum,<br>
-  <span class="fn">ROUND</span>(<span class="fn">AVG</span>(<span class="cn">col_num_1</span>), <span class="num">2</span>)                                <span class="kw">AS</span> moyenne,<br>
-  <span class="fn">PERCENTILE_CONT</span>(<span class="num">0.5</span>) <span class="kw">WITHIN GROUP</span> (<span class="kw">ORDER BY</span> <span class="cn">col_num_1</span>) <span class="kw">AS</span> mediane,<br>
-  <span class="fn">ROUND</span>(<span class="fn">STDEV</span>(<span class="cn">col_num_1</span>), <span class="num">2</span>)                              <span class="kw">AS</span> ecart_type<br>
+<span class="kw">SELECT DISTINCT</span><br>
+  <span class="fn">COUNT</span>(<span class="cn">col_num_1</span>) <span class="kw">OVER</span>()                                        <span class="kw">AS</span> nb_valeurs,<br>
+  <span class="fn">COUNT</span>(*) <span class="kw">OVER</span>() - <span class="fn">COUNT</span>(<span class="cn">col_num_1</span>) <span class="kw">OVER</span>()                    <span class="kw">AS</span> nb_nulls,<br>
+  <span class="fn">MIN</span>(<span class="cn">col_num_1</span>) <span class="kw">OVER</span>()                                          <span class="kw">AS</span> minimum,<br>
+  <span class="fn">MAX</span>(<span class="cn">col_num_1</span>) <span class="kw">OVER</span>()                                          <span class="kw">AS</span> maximum,<br>
+  <span class="fn">ROUND</span>(<span class="fn">AVG</span>(<span class="fn">CAST</span>(<span class="cn">col_num_1</span> <span class="kw">AS</span> <span class="kw">FLOAT</span>)) <span class="kw">OVER</span>(), <span class="num">2</span>)             <span class="kw">AS</span> moyenne,<br>
+  <span class="fn">PERCENTILE_CONT</span>(<span class="num">0.5</span>) <span class="kw">WITHIN GROUP</span> (<span class="kw">ORDER BY</span> <span class="cn">col_num_1</span>) <span class="kw">OVER</span>() <span class="kw">AS</span> mediane,<br>
+  <span class="fn">ROUND</span>(<span class="fn">STDEV</span>(<span class="cn">col_num_1</span>) <span class="kw">OVER</span>(), <span class="num">2</span>)                           <span class="kw">AS</span> ecart_type<br>
 <span class="kw">FROM</span> table_1;
   </div>
   <div class="tip"><strong>&#128161; Si moyenne &gt;&gt; m&eacute;diane</strong> &rarr; distribution asym&eacute;trique, probablement des outliers. Comparez toujours les deux avant de choisir votre indicateur.</div>
